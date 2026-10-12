@@ -3,18 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LOGIN PAGE</title>
-    <link href="login.css" rel="stylesheets"/>
+    <title>EduCentral - Student Portal Login</title>
+    <link rel="stylesheet" href="login.css">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <form>
 
-        <input type="text" id="username" placeholder="Enter roll No." class="login"/> <br>
-        <input type="password" id="password" placholder="Enter password" class ="login"/><br>
-        <button > Login </button> <br>
-        <button> forget password </button>
+    <div class="login-wrapper">
+        <div class="login-container">
+            
+            <!-- Left Brand / Sidebar Panel -->
+            <div class="brand-panel">
+                <div class="brand-top">
+                    <div class="logo-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                    <div class="brand-name">
+                        <h2>EduCentral</h2>
+                        <span>Student Portal</span>
+                    </div>
+                </div>
 
+                <div class="brand-center">
+                    <div class="app-icon-box">
+                        <i class="fa-solid fa-user-graduate"></i>
+                    </div>
+                    <h2>EduCentral -<br>Student Portal</h2>
+                    <p>Check your education and emfort university platform.</p>
+                </div>
 
-    </form>
+                <div class="brand-footer-graphics"></div>
+            </div>
+
+            <!-- Right Form Panel -->
+            <div class="form-panel">
+                <form action="#" method="POST" class="auth-form">
+                    
+                    <div class="form-main-content">
+                        <!-- Left Side Inputs -->
+                        <div class="input-section">
+                            <div class="form-header">
+                                <h2>Sign In</h2>
+                                <p>Sign in your student platform</p>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="rollno">Student Roll Number / ID</label>
+                                <div class="input-field-wrapper">
+                                    <i class="fa-regular fa-id-card"></i>
+                                    <input type="text" id="rollno" name="rollno" placeholder="Student Roll Number / ID" required>
+                                </div>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="password">Password</label>
+                                <div class="input-field-wrapper">
+                                    <i class="fa-solid fa-lock"></i>
+                                    <input type="password" id="password" name="password" placeholder="Enter Password" required>
+                                    <i class="fa-regular fa-eye-slash toggle-password"></i>
+                                </div>
+                            </div>
+
+                            <div class="form-actions-inline">
+                                <a href="#" class="forgot-link">Forgot Password?</a>
+                                <a href="#" class="create-link">Create Account</a>
+                            </div>
+                        </div>
+
+                        <!-- Right Side SSO Card -->
+                        <div class="sso-card">
+                            <h3>University API Login</h3>
+                            <button type="button" class="sso-btn">
+                                <i class="fa-solid fa-user-shield"></i> SSO
+                            </button>
+                            <p>University API Login now connected to sync attendance and manage your home.</p>
+                        </div>
+                    </div>
+
+                    <!-- Main Submit Button -->
+                    <button type="submit" class="submit-btn">Connect and Fetch Attendance</button>
+
+                    <!-- Special Login Divider -->
+                    <div class="divider">
+                        <span>Special Login</span>
+                    </div>
+
+                    <!-- Alternative Login Buttons -->
+                    <div class="social-logins">
+                        <button type="button" class="alt-login-btn google-btn">
+                            <i class="fa-brands fa-google"></i> Login with Google
+                        </button>
+                        <button type="button" class="alt-login-btn">
+                            <i class="fa-solid fa-building-columns"></i> University Staff Login
+                        </button>
+                        <button type="button" class="alt-login-btn">
+                            <i class="fa-solid fa-user-tie"></i> University Staff Login
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+
 </body>
 </html>

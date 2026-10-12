@@ -1,0 +1,327 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+body {
+    background-color: #2b2e35;
+    background-image: radial-gradient(circle at 50% 50%, #3a3f4c 0%, #1e2025 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.login-wrapper {
+    width: 100%;
+    max-width: 1200px; /* Increased max-width for better scaling */
+}
+
+.login-container {
+    background: #f4f5f8;
+    border-radius: 28px;
+    display: flex;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.5);
+    min-height: 680px; /* Increased base height */
+}
+
+/* Left Brand Panel */
+.brand-panel {
+    width: 38%;
+    background: linear-gradient(135deg, #4c1d95 0%, #2e1065 100%);
+    color: #ffffff;
+    padding: 50px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+}
+
+.brand-top {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.logo-icon {
+    font-size: 26px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 12px;
+    border-radius: 14px;
+}
+
+.brand-name h2 {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.brand-name span {
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+.brand-center {
+    margin: auto 0;
+}
+
+.app-icon-box {
+    width: 72px;
+    height: 72px;
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin-bottom: 28px;
+    box-shadow: 0 12px 24px rgba(109, 40, 217, 0.4);
+}
+
+.brand-center h2 {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 14px;
+}
+
+.brand-center p {
+    font-size: 14px;
+    opacity: 0.75;
+    line-height: 1.6;
+}
+
+/* Right Form Panel */
+.form-panel {
+    width: 62%;
+    padding: 55px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.form-main-content {
+    display: flex;
+    gap: 32px;
+}
+
+.input-section {
+    flex: 1.3;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-header h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.form-header p {
+    font-size: 14px;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.input-field-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-field-wrapper i {
+    position: absolute;
+    left: 16px;
+    color: #8b5cf6;
+    font-size: 16px;
+}
+
+.input-field-wrapper i.toggle-password {
+    left: auto;
+    right: 16px;
+    color: #9ca3af;
+    cursor: pointer;
+}
+
+.input-field-wrapper input {
+    width: 100%;
+    padding: 14px 16px 14px 46px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    font-size: 14px;
+    color: #1f2937;
+    outline: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.input-field-wrapper input:focus {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+}
+
+.form-actions-inline {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+.form-actions-inline a {
+    color: #4b5563;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.form-actions-inline a:hover {
+    color: #6d28d9;
+}
+
+/* SSO Card (Right Side of Form) */
+.sso-card {
+    flex: 0.9;
+    background: #eceef4;
+    border-radius: 18px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    border: 1px solid #e2e4ed;
+}
+
+.sso-card h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 16px;
+}
+
+.sso-btn {
+    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    color: #ffffff;
+    border: none;
+    padding: 10px 28px;
+    border-radius: 22px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 6px 16px rgba(124, 58, 237, 0.3);
+    margin-bottom: 16px;
+}
+
+.sso-card p {
+    font-size: 12px;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+/* Submit Button */
+.submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #7c3aed 0%, #db2777 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 16px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
+    transition: opacity 0.2s;
+}
+
+.submit-btn:hover {
+    opacity: 0.95;
+}
+
+/* Divider */
+.divider {
+    position: relative;
+    text-align: center;
+    margin: 6px 0;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: #e5e7eb;
+}
+
+.divider span {
+    position: relative;
+    background: #f4f5f8;
+    padding: 0 14px;
+    font-size: 12px;
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+/* Social & Alternative Logins */
+.social-logins {
+    display: flex;
+    gap: 12px;
+}
+
+.alt-login-btn {
+    flex: 1;
+    padding: 12px 14px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.alt-login-btn:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.google-btn i {
+    color: #ea4335;
+    font-size: 14px;
+}
