@@ -3,7 +3,7 @@ import React from 'react';
 function TeacherDashboard() {
   const mockTeacher = {
     name: "Dr. Sharma",
-    department: "Computer Science",
+    department: "CSE",
     activeClasses: 3
   };
 
