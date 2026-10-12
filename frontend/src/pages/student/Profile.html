@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Student Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --purple: #4a1d7a;
+      --purple-dark: #3b1566;
+      --purple-tint: #ece8f4;
+      --purple-soft: #f5f3fa;
+      --bg: #f6f5fa;
+      --card: #ffffff;
+      --border: #e6e3ee;
+      --text: #2b2b36;
+      --muted: #6b6878;
+      --danger: #c0262d;
+      --sb-width: 240px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Roboto", "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .layout { display: flex; min-height: 100vh; }
+
+    /* ================= SIDEBAR ================= */
+    .sidebar {
+      position: sticky;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+      width: var(--sb-width);
+      height: 100vh;
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .sb-logo { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 28px 16px 26px; }
+    .sb-logo-icon { width: 42px; height: 32px; color: var(--purple-dark); }
+    .sb-logo-text { font-size: 15px; font-weight: 600; letter-spacing: 0.2px; }
+
+    .sb-nav { flex: 1; overflow-y: auto; }
+    .sb-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+
+    .sb-item {
+      --c: #4a1d7a;
+      --c-bg: #ece8f4;
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: calc(100% - 24px);
+      margin: 0 12px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 16px;
+      text-align: left;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .sb-item:hover { background: var(--purple-soft); }
+    .sb-item:focus-visible { outline: 2px solid var(--c); outline-offset: 2px; }
+
+    .sb-icon-wrap {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--c-bg);
+      color: var(--c);
+      flex-shrink: 0;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .sb-icon { width: 20px; height: 20px; }
+    .sb-label { white-space: nowrap; }
+    .sb-item:hover .sb-icon-wrap { transform: scale(1.08); }
+
+    .sb-item.active { background: var(--c-bg); font-weight: 500; }
+    .sb-item.active .sb-icon-wrap { background: var(--c); color: #fff; box-shadow: 0 4px 10px -2px var(--c); }
+    .sb-item.active::before {
+      content: "";
+      position: absolute;
+      left: -12px;
+      top: 4px;
+      bottom: 4px;
+      width: 4px;
+      border-radius: 0 4px 4px 0;
+      background: var(--c);
+    }
+
+    .c-student    { --c: #7c3aed; --c-bg: #f1eaff; }
+    .c-attendance { --c: #4a1d7a; --c-bg: #ece8f4; }
+    .c-schedule   { --c: #0284c7; --c-bg: #e0f2fe; }
+    .c-grades     { --c: #d97706; --c-bg: #fef3c7; }
+    .c-library    { --c: #059669; --c-bg: #d1fae5; }
+    .c-map        { --c: #e11d48; --c-bg: #ffe4e9; }
+    .c-profile    { --c: #db2777; --c-bg: #fce7f3; }
+    .c-logout     { --c: #475569; --c-bg: #e8ecf1; }
+
+    .sb-footer { padding: 16px 0 28px; }
+
+    /* ================= MAIN ================= */
+    .main { flex: 1; min-width: 0; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 14px 32px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar h1 { margin: 0; font-size: 24px; font-weight: 500; flex: 1; }
+
+    .search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 260px;
+      padding: 9px 14px;
+      background: var(--purple-tint);
+      border-radius: 10px;
+      color: var(--muted);
+    }
+    .search input { border: none; background: transparent; outline: none; font: inherit; width: 100%; color: var(--text); }
+    .search svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    .bell { position: relative; display: grid; place-items: center; width: 38px; height: 38px; color: var(--purple); }
+    .bell svg { width: 22px; height: 22px; }
+    .bell .count {
+      position: absolute; top: 2px; right: 2px;
+      background: var(--purple); color: #fff;
+      font-size: 10px; font-weight: 500;
+      width: 16px; height: 16px; border-radius: 50%;
+      display: grid; place-items: center;
+    }
+
+    .user { display: flex; align-items: center; gap: 10px; }
+    .user .mini-avatar { width: 38px; height: 38px; border-radius: 50%; overflow: hidden; background: var(--purple-tint); flex-shrink: 0; }
+    .user .mini-avatar img, .user .mini-avatar svg { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .user-name { font-size: 14px; font-weight: 500; margin: 0; line-height: 1.2; }
+    .user-id { font-size: 12px; color: var(--muted); margin: 0; }
+
+    /* ================= CONTENT ================= */
+    .content {
+      display: grid;
+      grid-template-columns: 270px minmax(0, 1fr);
+      gap: 20px;
+      padding: 24px 32px 40px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 1px 2px rgba(60, 30, 100, 0.04);
+    }
+
+    /* ----- Left profile card ----- */
+    .profile-card { text-align: center; }
+    .avatar {
+      width: 132px; height: 132px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: var(--purple-tint);
+      border: 3px solid var(--purple-tint);
+      outline: 2px solid var(--purple);
+      outline-offset: 2px;
+    }
+    .avatar img, .avatar svg { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .p-name { margin: 0; font-size: 19px; font-weight: 500; }
+    .p-roll { margin: 4px 0 12px; font-size: 13px; color: var(--muted); }
+    .badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 999px;
+      background: var(--purple-tint);
+      color: var(--purple);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      font: inherit;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+    .btn:hover { background: var(--purple-soft); border-color: #d6cfe6; }
+    .btn:focus-visible { outline: 2px solid var(--purple); outline-offset: 2px; }
+    .btn svg { width: 17px; height: 17px; }
+    .btn-primary { background: var(--purple); border-color: var(--purple); color: #fff; }
+    .btn-primary:hover { background: var(--purple-dark); border-color: var(--purple-dark); }
+    .btn-block { width: 100%; }
+
+    .photo-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 18px; }
+    .hint { margin: 10px 0 0; font-size: 12px; color: var(--muted); }
+    .photo-error { margin: 8px 0 0; font-size: 12px; color: var(--danger); min-height: 16px; }
+
+    /* ----- Right details card ----- */
+    .section-head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+    .section-head h2 { margin: 0; font-size: 18px; font-weight: 500; flex: 1; }
+    .section-divider { height: 1px; background: var(--border); margin: 26px 0 22px; }
+
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 22px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { display: block; margin-bottom: 6px; font-size: 13px; color: var(--muted); }
+
+    .field input, .field select {
+      width: 100%;
+      padding: 10px 12px;
+      font: inherit;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .field input[readonly], .field select:disabled { padding-left: 0; opacity: 1; color: var(--text); }
+    .field select:disabled { background-image: none; }
+
+    form.editing .field input:not(.locked),
+    form.editing .field select {
+      background: var(--purple-soft);
+      border-color: var(--border);
+      padding-left: 12px;
+    }
+    form.editing .field select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%234a1d7a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 34px;
+    }
+    form.editing .field input:not(.locked):focus,
+    form.editing .field select:focus {
+      outline: none;
+      border-color: var(--purple);
+      background-color: #fff;
+      box-shadow: 0 0 0 3px rgba(74, 29, 122, 0.12);
+    }
+    .field input.locked { cursor: not-allowed; }
+    .field.invalid input { border-color: var(--danger) !important; }
+    .error { margin: 6px 0 0; font-size: 12px; color: var(--danger); min-height: 0; }
+    .lock-note { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    .form-actions { display: none; justify-content: flex-end; gap: 10px; margin-top: 26px; }
+    form.editing .form-actions { display: flex; }
+
+    .toast {
+      position: fixed;
+      right: 24px; bottom: 24px;
+      background: var(--purple-dark);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 14px;
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ================= RESPONSIVE ================= */
+    @media (max-width: 960px) {
+      .content { grid-template-columns: 1fr; }
+      .search { display: none; }
+    }
+    @media (max-width: 768px) {
+      .sidebar { width: 76px; }
+      .sb-logo-text, .sb-label { display: none; }
+      .sb-item { justify-content: center; padding: 8px 0; }
+      .topbar { padding: 12px 16px; }
+      .content { padding: 16px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .user-text { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .sb-item, .sb-icon-wrap, .btn, .toast { transition: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="layout">
+
+    <!-- ================= LEFT SIDEBAR ================= -->
+    <aside class="sidebar">
+      <div class="sb-logo">
+        <svg class="sb-logo-icon" viewBox="0 0 48 36" aria-hidden="true">
+          <path d="M24 2L1 13l23 11 23-11L24 2z" fill="currentColor" />
+          <path d="M10 19v8c0 3 6.5 7 14 7s14-4 14-7v-8l-14 6.5L10 19z" fill="currentColor" />
+          <path d="M44 14v12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+        </svg>
+        <span class="sb-logo-text">University</span>
+      </div>
+
+      <nav class="sb-nav" aria-label="Main navigation">
+        <ul class="sb-list">
+          <li>
+            <a class="sb-item c-student active" href="profile.html" aria-current="page">
+              <span class="sb-icon-wrap"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></span>
+              <span class="sb-label">Student Profile</span>
+            </a>
+          </li>
+          <li>
+            <a class="sb-item c-attendance" href="StudentDashboard.html">
+              <span class="sb-icon-wrap"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></span>
+              <span class="sb-label">Attendance</span>
+            </a>
+          </li>
+          <li>
+            <a class="sb-item c-schedule" href="StudentDashboard.html">
+              <span class="sb-icon-wrap"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg></span>
+              <span class="sb-label">Schedule</span>
+            </a>
+          </li>
+          <li>
+            <a class="sb-item c-grades" href="StudentDashboard.html">
+              <span class="sb-icon-wrap"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 11h6M9 15h6"/></svg></span>
+              <span class="sb-label">Grades</span>
+            </a>
+          </li>
+          <li>
+            <a class="sb-item c-library" href="StudentDashboard.html">
+              <span class="sb-icon-wrap"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6c-2-1.5-5-2-9-2v14c4 0 7 .5 9 2 2-1.5 5-2 9-2V4c-4 0-7 .5-9 2z"/><path d="M12 6v14"/></svg></span>
+              <span class="sb-label">Library</span>
+            </a>
+          </li>
+          <li>
+            <a class="sb-item c-map" href="StudentDashboard.html">
+              <span class="sb-icon-wrap"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>
+              <span class="sb-label">Campus Map</span>
+            </a>
+          </li>
+          <li>
+            <a class="sb-item c-profile" href="profile.html">
+              <span class="sb-icon-wrap"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></span>
+              <span class="sb-label">Profile</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="sb-footer">
+        <button class="sb-item c-logout" id="logout" type="button">
+          <span class="sb-icon-wrap"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg></span>
+          <span class="sb-label">Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ================= MAIN ================= -->
+    <div class="main">
+
+      <header class="topbar">
+        <h1>Student Profile</h1>
+
+        <label class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input type="text" placeholder="Search" aria-label="Search" />
+        </label>
+
+        <div class="bell" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>
+          <span class="count">2</span>
+        </div>
+
+        <div class="user">
+          <div class="mini-avatar" id="miniAvatar"></div>
+          <div class="user-text">
+            <p class="user-name" id="hName">Student Name</p>
+            <p class="user-id" id="hId">ID: 50000373</p>
+          </div>
+        </div>
+      </header>
+
+      <main class="content">
+
+        <!-- ===== Left: photo + summary ===== -->
+        <section class="card profile-card" aria-label="Profile summary">
+          <div class="avatar" id="avatar"></div>
+          <p class="p-name" id="sName">Student Name</p>
+          <p class="p-roll" id="sRoll">Roll no. 50000373</p>
+          <span class="badge" id="sCourse">B.Tech</span>
+
+          <div class="photo-actions">
+            <button type="button" class="btn btn-primary btn-block" id="uploadBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+              Upload photo
+            </button>
+            <button type="button" class="btn btn-block" id="removeBtn">Remove photo</button>
+            <input type="file" id="photoInput" accept="image/png, image/jpeg, image/webp" hidden />
+          </div>
+          <p class="photo-error" id="photoError" role="alert"></p>
+          <p class="hint">Cat avatar shows until you upload a photo. JPG, PNG or WebP, up to 2 MB.</p>
+        </section>
+
+        <!-- ===== Right: details ===== -->
+        <section class="card" aria-label="Student details">
+          <form id="profileForm" novalidate>
+
+            <div class="section-head">
+              <h2>Personal details</h2>
+              <button type="button" class="btn" id="editBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+                Edit profile
+              </button>
+            </div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="fullName">Full name</label>
+                <input type="text" id="fullName" name="fullName" readonly />
+                <p class="error"></p>
+              </div>
+
+              <div class="field">
+                <label for="gender">Gender</label>
+                <select id="gender" name="gender" disabled>
+                  <option>Male</option>
+                  <option>Female</option>
+                  <option>Other</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="phone1">Contact number 1</label>
+                <input type="tel" id="phone1" name="phone1" readonly inputmode="tel" />
+                <p class="error"></p>
+              </div>
+
+              <div class="field">
+                <label for="phone2">Contact number 2</label>
+                <input type="tel" id="phone2" name="phone2" readonly inputmode="tel" />
+                <p class="error"></p>
+              </div>
+
+              <div class="field full">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" readonly />
+                <p class="error"></p>
+              </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="section-head">
+              <h2>Academic details</h2>
+            </div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="roll">Roll number</label>
+                <input type="text" id="roll" name="roll" class="locked" readonly />
+                <div class="lock-note">Roll number can't be changed.</div>
+              </div>
+
+              <div class="field">
+                <label for="course">Course</label>
+                <select id="course" name="course" disabled>
+                  <option>B.Tech</option>
+                  <option>B.Sc</option>
+                </select>
+              </div>
+
+              <div class="field full">
+                <label for="branch">Opted branch</label>
+                <select id="branch" name="branch" disabled></select>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn" id="cancelBtn">Cancel</button>
+              <button type="submit" class="btn btn-primary">Save changes</button>
+            </div>
+
+          </form>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    /* ---------- Default student data (replace with your backend data) ---------- */
+    const DEFAULT_DATA = {
+      fullName: "Student Name",
+      gender: "Male",
+      phone1: "+91 98765 43210",
+      phone2: "+91 91234 56789",
+      email: "student.name@university.edu",
+      roll: "50000373",
+      course: "B.Tech",
+      branch: "Computer Science and Engineering",
+      photo: ""
+    };
+
+    const BRANCHES = {
+      "B.Tech": [
+        "Computer Science and Engineering",
+        "Information Technology",
+        "Electronics and Communication",
+        "Electrical Engineering",
+        "Mechanical Engineering",
+        "Civil Engineering"
+      ],
+      "B.Sc": [
+        "Physics",
+        "Chemistry",
+        "Mathematics",
+        "Computer Science",
+        "Biotechnology"
+      ]
+    };
+
+    const STORAGE_KEY = "studentProfile";
+
+    /* ---------- Cute cat avatar (shown when no photo is uploaded) ---------- */
+    const CAT_SVG = `
+      <svg viewBox="0 0 112 112" role="img" aria-label="Default cat avatar" xmlns="http://www.w3.org/2000/svg">
+        <rect width="112" height="112" fill="#ece8f4"/>
+        <path d="M26 52 L28 24 L50 38 Z" fill="#ffffff" stroke="#4a1d7a" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M86 52 L84 24 L62 38 Z" fill="#ffffff" stroke="#4a1d7a" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M31 46 L32 33 L42 40 Z" fill="#e9b8d2"/>
+        <path d="M81 46 L80 33 L70 40 Z" fill="#e9b8d2"/>
+        <ellipse cx="56" cy="62" rx="30" ry="26" fill="#ffffff" stroke="#4a1d7a" stroke-width="2.5"/>
+        <circle cx="45" cy="58" r="3.5" fill="#4a1d7a"/>
+        <circle cx="67" cy="58" r="3.5" fill="#4a1d7a"/>
+        <circle cx="38" cy="67" r="4" fill="#f3c6dc" opacity="0.8"/>
+        <circle cx="74" cy="67" r="4" fill="#f3c6dc" opacity="0.8"/>
+        <path d="M52 67 L60 67 L56 72 Z" fill="#db2777" stroke="#db2777" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M56 72 Q56 77 51 77 M56 72 Q56 77 61 77" fill="none" stroke="#4a1d7a" stroke-width="2" stroke-linecap="round"/>
+        <path d="M30 66 L16 63 M30 71 L17 74 M82 66 L96 63 M82 71 L95 74" stroke="#4a1d7a" stroke-width="2" stroke-linecap="round"/>
+      </svg>`;
+
+    /* ---------- Helpers ---------- */
+    const $ = (id) => document.getElementById(id);
+    const form = $("profileForm");
+    const fields = ["fullName", "gender", "phone1", "phone2", "email", "roll", "course", "branch"];
+
+    let data = loadData();
+    let editing = false;
+
+    function loadData() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return Object.assign({}, DEFAULT_DATA, saved || {});
+      } catch (e) {
+        return Object.assign({}, DEFAULT_DATA);
+      }
+    }
+
+    function saveData() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function showToast(msg) {
+      const t = $("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => t.classList.remove("show"), 2400);
+    }
+
+    function fillBranches(course, selected) {
+      const select = $("branch");
+      select.innerHTML = "";
+      (BRANCHES[course] || []).forEach((b) => {
+        const opt = document.createElement("option");
+        opt.value = b;
+        opt.textContent = b;
+        select.appendChild(opt);
+      });
+      if (selected && BRANCHES[course].includes(selected)) {
+        select.value = selected;
+      }
+    }
+
+    /* ---------- Render ---------- */
+    function renderAvatar() {
+      const html = data.photo
+        ? `<img src="${data.photo}" alt="Student photo" />`
+        : CAT_SVG;
+      $("avatar").innerHTML = html;
+      $("miniAvatar").innerHTML = html;
+    }
+
+    function renderSummary() {
+      $("sName").textContent = data.fullName;
+      $("sRoll").textContent = "Roll no. " + data.roll;
+      $("sCourse").textContent = data.course;
+      $("hName").textContent = data.fullName;
+      $("hId").textContent = "ID: " + data.roll;
+    }
+
+    function fillForm() {
+      fillBranches(data.course, data.branch);
+      fields.forEach((f) => {
+        if (f !== "branch") $(f).value = data[f];
+      });
+      $("branch").value = data.branch;
+      clearErrors();
+    }
+
+    /* ---------- Edit mode ---------- */
+    function setEditing(on) {
+      editing = on;
+      form.classList.toggle("editing", on);
+      fields.forEach((f) => {
+        if (f === "roll") return;
+        const el = $(f);
+        if (el.tagName === "SELECT") el.disabled = !on;
+        else el.readOnly = !on;
+      });
+      $("editBtn").style.display = on ? "none" : "inline-flex";
+      if (on) $("fullName").focus();
+    }
+
+    $("editBtn").addEventListener("click", () => setEditing(true));
+
+    $("cancelBtn").addEventListener("click", () => {
+      fillForm();
+      setEditing(false);
+    });
+
+    $("course").addEventListener("change", (e) => {
+      fillBranches(e.target.value);
+    });
+
+    /* ---------- Validation ---------- */
+    function setError(id, msg) {
+      const field = $(id).closest(".field");
+      field.classList.toggle("invalid", !!msg);
+      const p = field.querySelector(".error");
+      if (p) p.textContent = msg || "";
+    }
+
+    function clearErrors() {
+      document.querySelectorAll(".field").forEach((f) => {
+        f.classList.remove("invalid");
+        const p = f.querySelector(".error");
+        if (p) p.textContent = "";
+      });
+    }
+
+    const phoneOk = (v) => /^\+?[0-9\s-]{10,15}$/.test(v.trim());
+    const emailOk = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+
+    function validate() {
+      clearErrors();
+      let ok = true;
+
+      if ($("fullName").value.trim().length < 2) { setError("fullName", "Enter your full name"); ok = false; }
+      if (!phoneOk($("phone1").value)) { setError("phone1", "Enter a valid contact number"); ok = false; }
+      if ($("phone2").value.trim() && !phoneOk($("phone2").value)) { setError("phone2", "Enter a valid contact number"); ok = false; }
+      if (!emailOk($("email").value)) { setError("email", "Enter a valid email address"); ok = false; }
+
+      return ok;
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (!editing) return;
+      if (!validate()) return;
+
+      fields.forEach((f) => { data[f] = $(f).value.trim(); });
+      saveData();
+      renderSummary();
+      setEditing(false);
+      showToast("Profile saved");
+    });
+
+    /* ---------- Photo upload / remove ---------- */
+    const MAX_SIZE = 2 * 1024 * 1024;
+
+    $("uploadBtn").addEventListener("click", () => $("photoInput").click());
+
+    $("photoInput").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      $("photoError").textContent = "";
+      if (!file) return;
+
+      if (!/^image\/(png|jpeg|webp)$/.test(file.type)) {
+        $("photoError").textContent = "Choose a JPG, PNG, or WebP image.";
+        e.target.value = "";
+        return;
+      }
+      if (file.size > MAX_SIZE) {
+        $("photoError").textContent = "That photo is over 2 MB. Choose a smaller one.";
+        e.target.value = "";
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        data.photo = reader.result;
+        if (!saveData()) {
+          $("photoError").textContent = "Couldn't save the photo in this browser.";
+        }
+        renderAvatar();
+        showToast("Photo updated");
+      };
+      reader.readAsDataURL(file);
+      e.target.value = "";
+    });
+
+    $("removeBtn").addEventListener("click", () => {
+      if (!data.photo) {
+        showToast("No photo to remove");
+        return;
+      }
+      data.photo = "";
+      saveData();
+      renderAvatar();
+      showToast("Photo removed");
+    });
+
+    /* ---------- Logout ---------- */
+    $("logout").addEventListener("click", () => {
+      console.log("logout");
+      // window.location.href = "login.html";
+    });
+
+    /* ---------- Init ---------- */
+    renderAvatar();
+    renderSummary();
+    fillForm();
+    setEditing(false);
+  </script>
+</body>
+</html>
