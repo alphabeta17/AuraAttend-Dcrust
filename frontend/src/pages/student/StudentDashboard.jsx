@@ -1,16 +1,16 @@
-import React from 'react'
-import StudentDashboard from "./StudentDashboard";
+import React from 'react';
+import ActualStudentDashboard from "./StudentDashboard"; // Ya agar component kisi aur file mein hai toh uska sahi path dein
 
-const StudentDashboard = () => {
+const StudentDashboardWrapper = () => {
   return (
     <div>
-      <StudentDashboard
-  defaultActive="attendance"
-  onNavigate={(id) => console.log(id)}   // connect to react-router here
-  onLogout={() => console.log("logout")}
-/>
+      <ActualStudentDashboard
+        defaultActive="attendance"
+        onNavigate={(id) => console.log(id)}
+        onLogout={() => console.log("logout")}
+      />
     </div>
-  )
-}
+  );
+};
 
-export default StudentDashboard
+export default StudentDashboardWrapper;
