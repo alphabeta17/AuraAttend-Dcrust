@@ -1,0 +1,161 @@
+/* ===== Theme tokens (matched to your screenshot) ===== */
+:root {
+  --sb-bg: #ffffff;
+  --sb-border: #e6e3ee;
+  --sb-purple: #4a1d7a;        /* logo, active icon, active bar */
+  --sb-purple-dark: #3b1566;
+  --sb-active-bg: #ece8f4;     /* light lavender highlight */
+  --sb-text: #2b2b36;
+  --sb-icon: #4a2a78;
+  --sb-hover-bg: #f5f3fa;
+  --sb-width: 230px;
+}
+
+/* ===== Sidebar container ===== */
+.sidebar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: var(--sb-width);
+  min-height: 100vh;
+  background: var(--sb-bg);
+  border-right: 1px solid var(--sb-border);
+  font-family: "Roboto", "Segoe UI", system-ui, -apple-system, sans-serif;
+  box-sizing: border-box;
+}
+
+.sidebar *,
+.sidebar *::before,
+.sidebar *::after {
+  box-sizing: border-box;
+}
+
+/* ===== Logo ===== */
+.sb-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 28px 16px 26px;
+}
+
+.sb-logo-icon {
+  width: 42px;
+  height: 32px;
+  color: var(--sb-purple-dark);
+}
+
+.sb-logo-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--sb-text);
+  letter-spacing: 0.2px;
+}
+
+/* ===== Navigation list ===== */
+.sb-nav {
+  flex: 1;
+}
+
+.sb-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ===== Menu item (shared by nav + logout) ===== */
+.sb-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: calc(100% - 24px);
+  margin: 0 12px;
+  padding: 11px 14px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--sb-text);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.sb-item:hover {
+  background: var(--sb-hover-bg);
+}
+
+.sb-item:focus-visible {
+  outline: 2px solid var(--sb-purple);
+  outline-offset: 2px;
+}
+
+.sb-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  color: var(--sb-icon);
+}
+
+.sb-label {
+  white-space: nowrap;
+}
+
+/* ===== Active state: lavender pill + purple bar on the far left ===== */
+.sb-item.active {
+  background: var(--sb-active-bg);
+  font-weight: 500;
+}
+
+.sb-item.active::before {
+  content: "";
+  position: absolute;
+  left: -12px;               /* sits on the sidebar's left edge */
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: var(--sb-purple);
+}
+
+.sb-item.active .sb-icon {
+  color: var(--sb-purple);
+}
+
+/* ===== Logout (bottom) ===== */
+.sb-footer {
+  padding: 16px 0 28px;
+}
+
+/* ===== Responsive: collapse to icon rail on small screens ===== */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 72px;
+  }
+
+  .sb-logo-text,
+  .sb-label {
+    display: none;
+  }
+
+  .sb-item {
+    justify-content: center;
+    padding: 12px 0;
+  }
+
+  .sb-item.active::before {
+    left: -12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sb-item {
+    transition: none;
+  }
+}
