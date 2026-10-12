@@ -47,19 +47,23 @@
                             </div>
 
                             <div class="input-group">
-                                <label for="rollno">Student Roll Number / ID</label>
-                                <div class="input-field-wrapper">
-                                    <i class="fa-regular fa-id-card"></i>
-                                    <input type="text" id="rollno" name="rollno" placeholder="Student Roll Number / ID" required>
-                                </div>
-                            </div>
+    <label for="rollno">Student Roll Number / ID</label>
+    <div class="input-field-wrapper">
+        <i class="fa-regular fa-id-card"></i>
+        <input type="text" id="rollno" name="rollno" placeholder="Enter Integer ID Only" 
+               inputmode="numeric" pattern="[0-9]*" 
+               oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+    </div>
+</div>
 
                             <div class="input-group">
                                 <label for="password">Password</label>
                                 <div class="input-field-wrapper">
                                     <i class="fa-solid fa-lock"></i>
+                                    <!-- Added id="password" for JS targeting -->
                                     <input type="password" id="password" name="password" placeholder="Enter Password" required>
-                                    <i class="fa-regular fa-eye-slash toggle-password"></i>
+                                    <!-- Added id="togglePassword" for JS targeting -->
+                                    <i class="fa-regular fa-eye-slash toggle-password" id="togglePassword"></i>
                                 </div>
                             </div>
 
@@ -93,10 +97,10 @@
                             <i class="fa-brands fa-google"></i> Login with Google
                         </button>
                         <button type="button" class="alt-login-btn">
-                            <i class="fa-solid fa-building-columns"></i> University Staff Login
+                            <i class="fa-solid fa-building-columns"></i> Staff Login
                         </button>
                         <button type="button" class="alt-login-btn">
-                            <i class="fa-solid fa-user-tie"></i> University Staff Login
+                            <i class="fa-solid fa-user-tie"></i> Admin Login
                         </button>
                     </div>
 
@@ -105,6 +109,22 @@
 
         </div>
     </div>
+
+    <!-- JavaScript to toggle password visibility -->
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+
+        togglePassword.addEventListener('click', function () {
+            // Toggle the type attribute
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            
+            // Toggle the eye / eye-slash icon class
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+    </script>
 
 </body>
 </html>

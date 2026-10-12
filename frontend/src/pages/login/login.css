@@ -14,29 +14,29 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 40px;
+    padding: 20px;
 }
 
 .login-wrapper {
     width: 100%;
-    max-width: 1200px; /* Increased max-width for better scaling */
+    max-width: 1500px;
 }
 
 .login-container {
     background: #f4f5f8;
-    border-radius: 28px;
+    border-radius: 36px;
     display: flex;
     overflow: hidden;
-    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.5);
-    min-height: 680px; /* Increased base height */
+    box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.6);
+    min-height: 850px;
 }
 
 /* Left Brand Panel */
 .brand-panel {
-    width: 38%;
+    width: 40%;
     background: linear-gradient(135deg, #4c1d95 0%, #2e1065 100%);
     color: #ffffff;
-    padding: 50px 40px;
+    padding: 70px 60px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -47,23 +47,23 @@ body {
 .brand-top {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 20px;
 }
 
 .logo-icon {
-    font-size: 26px;
+    font-size: 34px;
     background: rgba(255, 255, 255, 0.1);
-    padding: 12px;
-    border-radius: 14px;
+    padding: 16px;
+    border-radius: 18px;
 }
 
 .brand-name h2 {
-    font-size: 20px;
+    font-size: 26px;
     font-weight: 700;
 }
 
 .brand-name span {
-    font-size: 13px;
+    font-size: 16px;
     opacity: 0.7;
 }
 
@@ -72,35 +72,35 @@ body {
 }
 
 .app-icon-box {
-    width: 72px;
-    height: 72px;
+    width: 96px;
+    height: 96px;
     background: linear-gradient(135deg, #8b5cf6, #6d28d9);
-    border-radius: 20px;
+    border-radius: 26px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 32px;
-    margin-bottom: 28px;
-    box-shadow: 0 12px 24px rgba(109, 40, 217, 0.4);
+    font-size: 42px;
+    margin-bottom: 36px;
+    box-shadow: 0 16px 32px rgba(109, 40, 217, 0.4);
 }
 
 .brand-center h2 {
-    font-size: 28px;
+    font-size: 36px;
     font-weight: 700;
     line-height: 1.3;
-    margin-bottom: 14px;
+    margin-bottom: 20px;
 }
 
 .brand-center p {
-    font-size: 14px;
+    font-size: 18px;
     opacity: 0.75;
     line-height: 1.6;
 }
 
 /* Right Form Panel */
 .form-panel {
-    width: 62%;
-    padding: 55px;
+    width: 60%;
+    padding: 75px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -109,41 +109,41 @@ body {
 .auth-form {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 32px;
 }
 
 .form-main-content {
     display: flex;
-    gap: 32px;
+    gap: 40px;
 }
 
 .input-section {
     flex: 1.3;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 26px;
 }
 
 .form-header h2 {
-    font-size: 24px;
+    font-size: 32px;
     font-weight: 700;
     color: #111827;
 }
 
 .form-header p {
-    font-size: 14px;
+    font-size: 18px;
     color: #6b7280;
-    margin-top: 4px;
+    margin-top: 6px;
 }
 
 .input-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
 .input-group label {
-    font-size: 13px;
+    font-size: 16px;
     font-weight: 600;
     color: #374151;
 }
@@ -156,42 +156,48 @@ body {
 
 .input-field-wrapper i {
     position: absolute;
-    left: 16px;
+    left: 20px;
     color: #8b5cf6;
-    font-size: 16px;
+    font-size: 20px;
 }
 
 .input-field-wrapper i.toggle-password {
     left: auto;
-    right: 16px;
+    right: 20px;
     color: #9ca3af;
     cursor: pointer;
+    font-size: 20px;
+    transition: color 0.2s;
+}
+
+.input-field-wrapper i.toggle-password:hover {
+    color: #6d28d9;
 }
 
 .input-field-wrapper input {
     width: 100%;
-    padding: 14px 16px 14px 46px;
+    padding: 18px 50px 18px 58px; /* Adjusted right padding so text doesn't overlap eye icon */
     background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    font-size: 14px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 18px;
+    font-size: 18px;
     color: #1f2937;
     outline: none;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.02);
 }
 
 .input-field-wrapper input:focus {
     border-color: #8b5cf6;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+    box-shadow: 0 0 0 5px rgba(139, 92, 246, 0.15);
 }
 
 .form-actions-inline {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 13px;
-    margin-top: 4px;
+    font-size: 16px;
+    margin-top: 6px;
 }
 
 .form-actions-inline a {
@@ -208,41 +214,41 @@ body {
 .sso-card {
     flex: 0.9;
     background: #eceef4;
-    border-radius: 18px;
-    padding: 24px;
+    border-radius: 24px;
+    padding: 32px;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
     justify-content: center;
-    border: 1px solid #e2e4ed;
+    border: 1.5px solid #e2e4ed;
 }
 
 .sso-card h3 {
-    font-size: 15px;
+    font-size: 20px;
     font-weight: 700;
     color: #1f2937;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
 }
 
 .sso-btn {
     background: linear-gradient(135deg, #7c3aed, #5b21b6);
     color: #ffffff;
     border: none;
-    padding: 10px 28px;
-    border-radius: 22px;
-    font-size: 14px;
+    padding: 14px 36px;
+    border-radius: 28px;
+    font-size: 18px;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 10px;
-    box-shadow: 0 6px 16px rgba(124, 58, 237, 0.3);
-    margin-bottom: 16px;
+    gap: 12px;
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
+    margin-bottom: 20px;
 }
 
 .sso-card p {
-    font-size: 12px;
+    font-size: 15px;
     color: #6b7280;
     line-height: 1.5;
 }
@@ -250,15 +256,15 @@ body {
 /* Submit Button */
 .submit-btn {
     width: 100%;
-    padding: 15px;
+    padding: 20px;
     background: linear-gradient(135deg, #7c3aed 0%, #db2777 100%);
     color: #ffffff;
     border: none;
-    border-radius: 16px;
-    font-size: 15px;
+    border-radius: 20px;
+    font-size: 20px;
     font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
+    box-shadow: 0 10px 25px rgba(124, 58, 237, 0.35);
     transition: opacity 0.2s;
 }
 
@@ -270,7 +276,7 @@ body {
 .divider {
     position: relative;
     text-align: center;
-    margin: 6px 0;
+    margin: 8px 0;
 }
 
 .divider::before {
@@ -279,15 +285,15 @@ body {
     top: 50%;
     left: 0;
     width: 100%;
-    height: 1px;
+    height: 1.5px;
     background: #e5e7eb;
 }
 
 .divider span {
     position: relative;
     background: #f4f5f8;
-    padding: 0 14px;
-    font-size: 12px;
+    padding: 0 18px;
+    font-size: 15px;
     color: #9ca3af;
     font-weight: 500;
 }
@@ -295,25 +301,25 @@ body {
 /* Social & Alternative Logins */
 .social-logins {
     display: flex;
-    gap: 12px;
+    gap: 16px;
 }
 
 .alt-login-btn {
     flex: 1;
-    padding: 12px 14px;
+    padding: 16px 18px;
     background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    font-size: 12.5px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 16px;
+    font-size: 16px;
     font-weight: 500;
     color: #374151;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
     transition: background 0.2s;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
 .alt-login-btn:hover {
@@ -323,5 +329,117 @@ body {
 
 .google-btn i {
     color: #ea4335;
-    font-size: 14px;
+    font-size: 18px;
+}
+
+
+/* ==========================================
+   RESPONSIVE MEDIA QUERIES (TABLETS & ANDROID)
+   ========================================== */
+
+@media screen and (max-width: 1024px) {
+    body {
+        padding: 10px;
+    }
+    
+    .login-container {
+        flex-direction: column;
+        min-height: auto;
+        border-radius: 24px;
+    }
+
+    .brand-panel {
+        width: 100%;
+        padding: 35px 25px;
+    }
+
+    .brand-center {
+        margin: 25px 0 0 0;
+    }
+
+    .app-icon-box {
+        width: 64px;
+        height: 64px;
+        font-size: 28px;
+        margin-bottom: 16px;
+    }
+
+    .brand-center h2 {
+        font-size: 24px;
+    }
+
+    .brand-center p {
+        font-size: 14px;
+    }
+
+    .form-panel {
+        width: 100%;
+        padding: 35px 25px;
+    }
+
+    .form-main-content {
+        flex-direction: column;
+        gap: 24px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    body {
+        padding: 0;
+    }
+
+    .login-container {
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .brand-panel {
+        padding: 30px 20px;
+    }
+
+    .brand-top .brand-name h2 {
+        font-size: 20px;
+    }
+
+    .form-panel {
+        padding: 25px 20px;
+    }
+
+    .form-header h2 {
+        font-size: 24px;
+    }
+
+    .form-header p {
+        font-size: 14px;
+    }
+
+    .input-field-wrapper input {
+        padding: 14px 45px 14px 48px;
+        font-size: 15px;
+    }
+
+    .input-field-wrapper i {
+        font-size: 16px;
+        left: 16px;
+    }
+
+    .input-field-wrapper i.toggle-password {
+        right: 16px;
+        font-size: 16px;
+    }
+
+    .submit-btn {
+        padding: 16px;
+        font-size: 16px;
+    }
+
+    .social-logins {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .alt-login-btn {
+        padding: 14px;
+        font-size: 14px;
+    }
 }
