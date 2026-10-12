@@ -7,6 +7,40 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet" />
 
   <style>
+
+    /* Noodle Throbber Overlay */
+    #loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: var(--card);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+    .noodle-loader {
+      font-size: 50px;
+      animation: bounceSpin 1.2s infinite ease-in-out;
+    }
+    .loader-text {
+      margin-top: 14px;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--purple);
+    }
+    @keyframes bounceSpin {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-15px) rotate(15deg); }
+    }
+    body.loaded #loader-overlay {
+      opacity: 0;
+      visibility: hidden;
+    }
     :root {
       --sb-bg: #ffffff;
       --sb-border: #e6e3ee;
@@ -152,6 +186,11 @@
 </head>
 
 <body>
+  <!-- STEP 2 CODE YAHAN AAYEGA -->
+  <div id="loader-overlay">
+    <div class="noodle-loader">🍜</div>
+    <div class="loader-text">Slurping up attendance data...</div>
+  </div>
   <div class="layout">
 
     <!-- ===== LEFT SIDEBAR ===== -->
@@ -212,7 +251,14 @@
             </button>
           </li>
 
-          <li>
-            <button class="sb-item c-map" data-id="campus-map" data-title="Campus Map">
-              <span class="sb-icon-wrap">
-                <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12
+          <!-- Page ke end mein </body> tag se theek pehle -->
+  <script>
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.body.classList.add("loaded");
+      }, 400);
+    });
+  </script>
+
+</body>
+</html>
