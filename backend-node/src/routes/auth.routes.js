@@ -1,9 +1,9 @@
 import express from 'express';
+import bcrypt from 'bcryptjs';
 import { sendOtpEmail } from '../services/email.service.js';
 import { OAuth2Client } from 'google-auth-library';
 
 const router = express.Router();
-
 const client = new OAuth2Client("166248464188-kh51ko7innf6jk9ojgalgtk61352uqcb.apps.googleusercontent.com");
 
 // In-memory store for OTPs { email: { otp, expiresAt } }
@@ -31,9 +31,9 @@ router.post('/send-otp', async (req, res) => {
     }
 });
 
-// 2. Verify OTP Route
-router.post('/verify-otp', (req, res) => {
-    const { email, otp } = req.body;
+// 2. Verify OTP & Register User Route
+router.post('/verify-otp', async (req, res) => {
+    const { email, otp, password } = req.body;
 
     if (!otpStorage.has(email)) {
         return res.status(400).json({ success: false, message: "No OTP requested for this email." });
@@ -50,8 +50,20 @@ router.post('/verify-otp', (req, res) => {
         return res.status(400).json({ success: false, message: "Invalid OTP code." });
     }
 
-    otpStorage.delete(email);
-    res.status(200).json({ success: true, message: "OTP verified successfully!" });
+    try {
+        // Hash the password securely using bcryptjs
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // TODO: Save `email` and `hashedPassword` to your MySQL/MongoDB database here
+        console.log(`[User Registered] Email: ${email}, Hashed Password: ${hashedPassword}`);
+
+        otpStorage.delete(email);
+        res.status(200).json({ success: true, message: "Account registered successfully!" });
+    } catch (error) {
+        console.error("Error during registration:", error);
+        res.status(500).json({ success: false, message: "Internal server error during registration." });
+    }
 });
 
 // 3. Google Login Route

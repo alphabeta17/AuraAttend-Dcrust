@@ -3,7 +3,7 @@ import SignupForm from './SignupForm.jsx';
 import './login.css';
 
 export default function Login({ onLoginSuccess }) {
-  const [isSignUp, setIsSignUp] = useState(false); // Controls view switching
+  const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
@@ -11,7 +11,11 @@ export default function Login({ onLoginSuccess }) {
   const GOOGLE_CLIENT_ID = "166248464188-kh51ko7innf6jk9ojgalgtk61352uqcb.apps.googleusercontent.com";
 
   useEffect(() => {
+    // Prevent duplicate script insertion
+    if (document.getElementById('google-client-script')) return;
+
     const script = document.createElement('script');
+    script.id = 'google-client-script';
     script.src = "https://accounts.google.com/gsi/client";
     script.async = true;
     script.defer = true;
@@ -23,21 +27,25 @@ export default function Login({ onLoginSuccess }) {
           client_id: GOOGLE_CLIENT_ID,
           callback: handleCredentialResponse
         });
-
-        const googleDiv = document.getElementById("googleButtonDiv");
-        if (googleDiv) {
-          window.google.accounts.id.renderButton(
-            googleDiv,
-            { theme: "outline", size: "large", width: "100%" }
-          );
-        }
       }
     };
-  }, [isSignUp]); // Re-renders google button when switching tabs if needed
+  }, []);
+
+  // Render Google button separately when view changes
+  useEffect(() => {
+    if (!isSignUp && window.google) {
+      const googleDiv = document.getElementById("googleButtonDiv");
+      if (googleDiv) {
+        googleDiv.innerHTML = ""; // Clear previous instance to prevent freezing
+        window.google.accounts.id.renderButton(
+          googleDiv,
+          { theme: "outline", size: "large", width: "100%" }
+        );
+      }
+    }
+  }, [isSignUp]);
 
   const handleCredentialResponse = async (response) => {
-    console.log("Google JWT ID token received:", response.credential);
-    
     try {
       const res = await fetch('http://localhost:5000/api/auth/google', {
         method: 'POST',
@@ -74,7 +82,6 @@ export default function Login({ onLoginSuccess }) {
       <div className="login-wrapper">
         <div className="login-container">
           
-          {/* Left Brand / Sidebar Panel (Stays static across transitions) */}
           <div className="brand-panel">
             <div className="brand-top">
               <div className="logo-icon"><i className="fa-solid fa-graduation-cap"></i></div>
@@ -95,7 +102,6 @@ export default function Login({ onLoginSuccess }) {
             <div className="brand-footer-graphics"></div>
           </div>
 
-          {/* Conditional Right Form Panel (Switches between Login and Signup seamlessly) */}
           {isSignUp ? (
             <SignupForm 
               onSwitchToLogin={() => setIsSignUp(false)} 
@@ -103,7 +109,7 @@ export default function Login({ onLoginSuccess }) {
             />
           ) : (
             <div className="form-panel">
-              <form onSubmit={handleSubmit} className="auth-form">
+              <form onSubmit={handleSubmit} className="auth-form" autoComplete="off">
                 
                 <div className="form-main-content">
                   <div className="input-section">
@@ -123,6 +129,7 @@ export default function Login({ onLoginSuccess }) {
                           placeholder="Enter your email/mobile" 
                           value={identifier}
                           onChange={(e) => setIdentifier(e.target.value)}
+                          autoComplete="off"
                           required 
                         />
                       </div>
@@ -139,6 +146,7 @@ export default function Login({ onLoginSuccess }) {
                           placeholder="Enter Password" 
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
+                          autoComplete="new-password"
                           required 
                         />
                         <i 
@@ -185,4 +193,8 @@ export default function Login({ onLoginSuccess }) {
       </div>
     </>
   );
+  // Jab login ya signup successfully ho jaye (data.success === true):
+if (data.success) {
+    window.location.href = '/student/StudentDashboard.html';
+}
 }

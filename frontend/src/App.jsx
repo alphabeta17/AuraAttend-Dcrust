@@ -1,25 +1,26 @@
 import React, { useState } from 'react';
-// Import your components and login page
 import Login from './pages/login/login.jsx';
-import StudentDashboard from './pages/student/StudentDashboard.jsx';
-import TeacherDashboard from './pages/teacher/TeacherDashboard.jsx';
 
 function App() {
-  // Track authentication state ('none', 'student', or 'teacher')
   const [userRole, setUserRole] = useState(null);
+
+  const handleLoginSuccess = (role) => {
+    setUserRole(role);
+    if (role === 'student') {
+      // Redirect directly to your standalone HTML student dashboard page
+      window.location.href = '/student/StudentDashboard.html';
+    } else if (role === 'teacher') {
+      // Redirect to teacher portal if applicable
+      window.location.href = '/teacher/teacherDashboard.html';
+    }
+  };
 
   // If user is not logged in, render the Login page
   if (!userRole) {
-    return <Login onLoginSuccess={(role) => setUserRole(role)} />;
+    return <Login onLoginSuccess={handleLoginSuccess} />;
   }
 
-  // Once logged in, render the appropriate dashboard based on role
-  return (
-    <>
-      {userRole === 'student' && <StudentDashboard />}
-      {userRole === 'teacher' && <TeacherDashboard />}
-    </>
-  );
+  return null;
 }
 
 export default App;

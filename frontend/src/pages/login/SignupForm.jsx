@@ -167,4 +167,8 @@ export default function SignupForm({ onSwitchToLogin, onSignupSuccess }) {
       )}
     </div>
   );
+  // Jab login ya signup successfully ho jaye (data.success === true):
+if (data.success) {
+    window.location.href = '/student/StudentDashboard.html';
+}
 }
