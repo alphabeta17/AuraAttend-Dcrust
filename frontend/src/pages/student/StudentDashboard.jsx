@@ -11,7 +11,7 @@ function StudentDashboard() {
   const mockAlerts = [
     {
       type: "CANCEL",
-      subject: "Advanced DBMS (CSE-302)",
+      subject: "Advanced DSA (CSE-302)",
       time: "Monday at 9:00 AM",
       note: "Professor Sharma is on official leave."
     },
