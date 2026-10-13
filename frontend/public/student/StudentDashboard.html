@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Student Dashboard - AuraAttend</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet" />
-
+  
   <style>
     :root {
       --sb-bg: #ffffff;
@@ -99,9 +99,6 @@
 
     /* ===== Menu item ===== */
     .sb-item {
-      --c: #4a1d7a;
-      --c-bg: #ece8f4;
-
       position: relative;
       display: flex;
       align-items: center;
@@ -180,7 +177,7 @@
   <!-- Noodle Throbber Overlay -->
   <div id="loader-overlay">
     <div class="noodle-loader">🍜</div>
-    <div class="loader-text">Slurping up attendance data...</div>
+    <div class="loader-text">Slurping up student data...</div>
   </div>
 
   <div class="layout">
@@ -205,29 +202,23 @@
               <span class="sb-label">Student Profile</span>
             </a>
           </li>
+         
           <li>
-            <a class="sb-item c-attendance active" href="Attendence.html">
+            <a class="sb-item c-attendance" href="Attendence.html">
               <span class="sb-icon-wrap">
                 <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
                   <rect x="3" y="3" width="7" height="9" rx="1.5"/>
                   <rect x="14" y="3" width="7" height="5" rx="1.5"/>
                   <rect x="14" y="12" width="7" height="9" rx="1.5"/>
-                  <rect x="3" y="16" width="7" height="5" rx="1.5"/>
+                  <rect x="15" y="16" width="7" height="5" rx="1.5"/>
                 </svg>
               </span>
               <span class="sb-label">Attendance</span>
             </a>
           </li>
+
           <li>
-            <button class="sb-item c-schedule" data-id="schedule">
-              <span class="sb-icon-wrap">
-                <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>
-              </span>
-              <span class="sb-label">Schedule</span>
-            </button>
-          </li>
-          <li>
-            <button class="sb-item c-grades" data-id="grades">
+            <button class="sb-item c-grades" type="button">
               <span class="sb-icon-wrap">
                 <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 11h6M9 15h6"/></svg>
               </span>
@@ -235,7 +226,7 @@
             </button>
           </li>
           <li>
-            <button class="sb-item c-library" data-id="library">
+            <button class="sb-item c-library" type="button">
               <span class="sb-icon-wrap">
                 <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6c-2-1.5-5-2-9-2v14c4 0 7 .5 9 2 2-1.5 5-2 9-2V4c-4 0-7 .5-9 2z"/><path d="M12 6v14"/></svg>
               </span>
@@ -249,7 +240,7 @@
     <!-- Main Content Area -->
     <main class="main">
       <h1>Welcome to Student Dashboard</h1>
-      <p>Your attendance and academic records will appear here.</p>
+      <p>Your attendance and academic records will appear here. Click on <strong>Student Profile</strong> or <strong>Attendance</strong> from the sidebar.</p>
     </main>
   </div>
 
