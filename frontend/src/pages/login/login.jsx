@@ -7,20 +7,18 @@ export default function Login({ onLoginSuccess }) {
   const [showPassword, setShowPassword] = useState(false);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
+  const [message, setMessage] = useState({ text: '', type: '' }); // Pop-up ki jagah inline message state
 
   const GOOGLE_CLIENT_ID = "166248464188-kh51ko7innf6jk9ojgalgtk61352uqcb.apps.googleusercontent.com";
 
   useEffect(() => {
-    // Prevent duplicate script insertion
     if (document.getElementById('google-client-script')) return;
-
     const script = document.createElement('script');
     script.id = 'google-client-script';
     script.src = "https://accounts.google.com/gsi/client";
     script.async = true;
     script.defer = true;
     document.body.appendChild(script);
-
     script.onload = () => {
       if (window.google) {
         window.google.accounts.id.initialize({
@@ -31,16 +29,13 @@ export default function Login({ onLoginSuccess }) {
     };
   }, []);
 
-  // Render Google button separately when view changes
+  // Google button render in Login view
   useEffect(() => {
     if (!isSignUp && window.google) {
       const googleDiv = document.getElementById("googleButtonDiv");
       if (googleDiv) {
-        googleDiv.innerHTML = ""; // Clear previous instance to prevent freezing
-        window.google.accounts.id.renderButton(
-          googleDiv,
-          { theme: "outline", size: "large", width: "100%" }
-        );
+        googleDiv.innerHTML = "";
+        window.google.accounts.id.renderButton(googleDiv, { theme: "outline", size: "large", width: "100%" });
       }
     }
   }, [isSignUp]);
@@ -54,12 +49,35 @@ export default function Login({ onLoginSuccess }) {
       });
       const data = await res.json();
       if (data.success) {
-        if (onLoginSuccess) onLoginSuccess('student');
+        window.location.href = '/student/StudentDashboard.html';
       } else {
-        alert("Google Authentication failed on server.");
+        setMessage({ text: data.message || "Google login failed", type: 'error' });
       }
     } catch (err) {
-      console.error("Network error during Google login:", err);
+      setMessage({ text: "Unable to connect to server.", type: 'error' });
+    }
+  };
+
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    setMessage({ text: '', type: '' });
+
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: identifier, password: password })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        window.location.href = '/student/StudentDashboard.html';
+      } else {
+        setMessage({ text: data.message || "Login failed", type: 'error' }); // Pop-up ki jagah HTML error msg
+      }
+    } catch (err) {
+      setMessage({ text: "Unable to connect to server.", type: 'error' });
     }
   };
 
@@ -67,50 +85,32 @@ export default function Login({ onLoginSuccess }) {
     setShowPassword(!showPassword);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (onLoginSuccess) onLoginSuccess('student');
-  };
-
   return (
     <>
-      <link 
-        rel="stylesheet" 
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
-      />
-
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
       <div className="login-wrapper">
         <div className="login-container">
-          
           <div className="brand-panel">
             <div className="brand-top">
               <div className="logo-icon"><i className="fa-solid fa-graduation-cap"></i></div>
-              <div className="brand-name">
-                <h2>AuraAttend</h2>
-                <span>Student Portal</span>
-              </div>
+              <div className="brand-name"><h2>AuraAttend</h2><span>Student Portal</span></div>
             </div>
-
             <div className="brand-center">
-              <div className="app-icon-box">
-                <i className="fa-solid fa-user-graduate"></i>
-              </div>
-              <h2>AuraAttend -<br />Student Portal</h2>
+              <div className="app-icon-box"><i className="fa-solid fa-user-graduate"></i></div>
+              <h2>AuraAttend -<br/>Student Portal</h2>
               <p>Check your education and emfort university platform.</p>
             </div>
-
             <div className="brand-footer-graphics"></div>
           </div>
 
           {isSignUp ? (
             <SignupForm 
               onSwitchToLogin={() => setIsSignUp(false)} 
-              onSignupSuccess={onLoginSuccess} 
+              onSignupSuccess={onLoginSuccess}
             />
           ) : (
             <div className="form-panel">
-              <form onSubmit={handleSubmit} className="auth-form" autoComplete="off">
-                
+              <form onSubmit={handleLoginSubmit} className="auth-form" autoComplete="off">
                 <div className="form-main-content">
                   <div className="input-section">
                     <div className="form-header">
@@ -127,9 +127,9 @@ export default function Login({ onLoginSuccess }) {
                           id="rollno" 
                           name="rollno" 
                           placeholder="Enter your email/mobile" 
-                          value={identifier}
-                          onChange={(e) => setIdentifier(e.target.value)}
-                          autoComplete="off"
+                          value={identifier} 
+                          onChange={(e) => setIdentifier(e.target.value)} 
+                          autoComplete="off" 
                           required 
                         />
                       </div>
@@ -144,57 +144,43 @@ export default function Login({ onLoginSuccess }) {
                           id="password" 
                           name="password" 
                           placeholder="Enter Password" 
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          autoComplete="new-password"
+                          value={password} 
+                          onChange={(e) => setPassword(e.target.value)} 
+                          autoComplete="new-password" 
                           required 
                         />
-                        <i 
-                          className={`fa-regular ${showPassword ? "fa-eye" : "fa-eye-slash"} toggle-password`} 
-                          id="togglePassword"
-                          onClick={handleTogglePassword}
-                        ></i>
+                        <i className={`fa-regular ${showPassword ? "fa-eye" : "fa-eye-slash"} toggle-password`} id="togglePassword" onClick={handleTogglePassword}></i>
                       </div>
                     </div>
 
+                    {message.text && (
+                      <div style={{ margin: '8px 0', padding: '8px 12px', borderRadius: '6px', fontSize: '13px', textAlign: 'center', backgroundColor: message.type === 'error' ? '#fee2e2' : '#dcfce7', color: message.type === 'error' ? '#dc2626' : '#16a34a', fontWeight: 500 }}>
+                        {message.text}
+                      </div>
+                    )}
+
                     <div className="form-actions-inline">
                       <a href="#forgot" className="forgot-link">Forgot Password?</a>
-                      <span className="signup-prompt-text">
-                        Don't have an account? <span onClick={() => setIsSignUp(true)} className="create-link" style={{ cursor: 'pointer', color: '#7c3aed', fontWeight: 600 }}>Sign up</span>
-                      </span>
+                      <span className="signup-prompt-text">Don't have an account? <span onClick={() => setIsSignUp(true)} className="create-link" style={{ cursor: 'pointer', color: '#7c3aed', fontWeight: 600 }}>Sign up</span></span>
                     </div>
                   </div>
                 </div>
 
                 <button type="submit" className="submit-btn">Connect and Fetch Attendance</button>
 
-                <div className="divider">
-                  <span>Or connect with</span>
-                </div>
-
+                <div className="divider"><span>Or connect with</span></div>
                 <div className="auth-options-section" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <div id="googleButtonDiv" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}></div>
-
                   <div style={{ display: 'flex', gap: '12px' }}>
-                    <button type="button" className="alt-login-btn">
-                      <i className="fa-solid fa-building-columns"></i> Staff Login
-                    </button>
-                    <button type="button" className="alt-login-btn">
-                      <i className="fa-solid fa-user-tie"></i> Admin Login
-                    </button>
+                    <button type="button" className="alt-login-btn"><i className="fa-solid fa-building-columns"></i> Staff Login</button>
+                    <button type="button" className="alt-login-btn"><i className="fa-solid fa-user-tie"></i> Admin Login</button>
                   </div>
                 </div>
-
               </form>
             </div>
           )}
-
         </div>
       </div>
     </>
   );
-  // Jab login ya signup successfully ho jaye (data.success === true):
-if (data.success) {
-    window.location.href = '/student/StudentDashboard.html';
-}
 }

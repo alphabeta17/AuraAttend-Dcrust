@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>EduCentral – Attendance</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,6 +43,23 @@
       color: var(--text);
     }
 
+    #loader-overlay {
+      position: fixed; top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: var(--card);
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      z-index: 9999;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+    .noodle-loader { font-size: 50px; animation: bounceSpin 1.2s infinite ease-in-out; }
+    .loader-text { margin-top: 14px; font-size: 15px; font-weight: 500; color: var(--purple); }
+    @keyframes bounceSpin {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-15px) rotate(15deg); }
+    }
+    body.loaded #loader-overlay { opacity: 0; visibility: hidden; }
+    
     .layout { display: flex; min-height: 100vh; }
 
     /* ================= SIDEBAR ================= */
@@ -288,10 +305,14 @@
       .content { padding: 16px; }
       .search { display: none; }
     }
+    
   </style>
 </head>
-
 <body>
+  <div id="loader-overlay">
+    <div class="noodle-loader">🍜</div>
+    <div class="loader-text">Slurping up dashboard data...</div>
+  </div>
   <div class="layout">
 
     <!-- ================= LEFT SIDEBAR ================= -->
@@ -302,7 +323,7 @@
       <path d="M10 19v8c0 3 6.5 7 14 7s14-4 14-7v-8l-14 6.5L10 19z" fill="currentColor" />
       <path d="M44 14v12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
     </svg>
-    <span class="sb-logo-text">University</span>
+        <span class="sb-logo-text">University</span>
   </div>
 
   <nav class="sb-nav" aria-label="Main navigation">
@@ -316,58 +337,41 @@
           <span class="sb-label">Student Profile</span>
         </a>
       </li>
-
-      <!-- Attendance -->
       <li>
-        <a class="sb-item c-attendance" href="Attendence.html">
-          <span class="sb-icon-wrap">
-            <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
-          </span>
-          <span class="sb-label">Attendance</span>
-        </a>
-      </li>
-
-      <!-- Schedule -->
+            <a class="sb-item c-attendance active" href="Attendence.html" aria-current="page">
+              <span class="sb-icon-wrap"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></span>
+              <span class="sb-label">Attendence</span>
+            </a>
+          </li>
+  <!-- Schedule -->
       <li>
-        <a class="sb-item c-schedule" href="Schedule.html">
+        <a class="sb-item c-schedule" href="StudentDashboard.html">
           <span class="sb-icon-wrap">
             <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>
           </span>
           <span class="sb-label">Schedule</span>
         </a>
       </li>
-
-      <!-- Grades -->
+            <!-- Grades -->
       <li>
-        <a class="sb-item c-grades" href="Grades.html">
+        <a class="sb-item c-grades" href="StudentDashboard.html">
           <span class="sb-icon-wrap">
             <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 11h6M9 15h6"/></svg>
           </span>
           <span class="sb-label">Grades</span>
         </a>
       </li>
-
-      <!-- Library -->
+   <!-- Library -->
       <li>
-        <a class="sb-item c-library" href="Library.html">
+        <a class="sb-item c-library" href="StudentDashboard.html">
           <span class="sb-icon-wrap">
             <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6c-2-1.5-5-2-9-2v14c4 0 7 .5 9 2 2-1.5 5-2 9-2V4c-4 0-7 .5-9 2z"/><path d="M12 6v14"/></svg>
           </span>
           <span class="sb-label">Library</span>
         </a>
       </li>
-
-      <!-- Campus Map -->
-      <li>
-        <a class="sb-item c-map" href="CampusMap.html">
-          <span class="sb-icon-wrap">
-            <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
-          </span>
-          <span class="sb-label">Campus Map</span>
-        </a>
-      </li>
-    </ul>
-  </nav>
+      </ul>
+        </nav>
 
   <div class="sb-footer">
     <button class="sb-item c-logout" id="logout" type="button">
@@ -463,5 +467,13 @@
       </main>
     </div>
   </div>
+  <script>
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.body.classList.add("loaded");
+      }, 400);
+    });
+
+  </script>
 </body>
 </html>

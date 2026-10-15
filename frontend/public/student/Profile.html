@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Student Profile</title>
+  <title>Student Profile - AuraAttend</title>
+  
+  <!-- Uniform Font Setup across all pages -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet" />
 
   <style>
@@ -28,6 +30,41 @@
       font-family: "Roboto", "Segoe UI", system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
+      font-size: 15px;
+    }
+
+    /* ===== Noodle Throbber Loader Overlay ===== */
+    #loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: var(--card);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+    .noodle-loader {
+      font-size: 50px;
+      animation: bounceSpin 1.2s infinite ease-in-out;
+    }
+    .loader-text {
+      margin-top: 14px;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--purple);
+    }
+    @keyframes bounceSpin {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-15px) rotate(15deg); }
+    }
+    body.loaded #loader-overlay {
+      opacity: 0;
+      visibility: hidden;
     }
 
     .layout { display: flex; min-height: 100vh; }
@@ -103,14 +140,14 @@
       background: var(--c);
     }
 
-    .c-student    { --c: #7c3aed; --c-bg: #f1eaff; }
+    .c-student { --c: #7c3aed; --c-bg: #f1eaff; }
     .c-attendance { --c: #4a1d7a; --c-bg: #ece8f4; }
-    .c-schedule   { --c: #0284c7; --c-bg: #e0f2fe; }
-    .c-grades     { --c: #d97706; --c-bg: #fef3c7; }
-    .c-library    { --c: #059669; --c-bg: #d1fae5; }
-    .c-map        { --c: #e11d48; --c-bg: #ffe4e9; }
-    .c-profile    { --c: #db2777; --c-bg: #fce7f3; }
-    .c-logout     { --c: #475569; --c-bg: #e8ecf1; }
+    .c-schedule { --c: #0284c7; --c-bg: #e0f2fe; }
+    .c-grades { --c: #d97706; --c-bg: #fef3c7; }
+    .c-library { --c: #059669; --c-bg: #d1fae5; }
+    .c-map { --c: #e11d48; --c-bg: #ffe4e9; }
+    .c-profile { --c: #db2777; --c-bg: #fce7f3; }
+    .c-logout { --c: #475569; --c-bg: #e8ecf1; }
 
     .sb-footer { padding: 16px 0 28px; }
 
@@ -173,7 +210,6 @@
       box-shadow: 0 1px 2px rgba(60, 30, 100, 0.04);
     }
 
-    /* ----- Left profile card ----- */
     .profile-card { text-align: center; }
     .avatar {
       width: 132px; height: 132px;
@@ -225,7 +261,6 @@
     .hint { margin: 10px 0 0; font-size: 12px; color: var(--muted); }
     .photo-error { margin: 8px 0 0; font-size: 12px; color: var(--danger); min-height: 16px; }
 
-    /* ----- Right details card ----- */
     .section-head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
     .section-head h2 { margin: 0; font-size: 18px; font-weight: 500; flex: 1; }
     .section-divider { height: 1px; background: var(--border); margin: 26px 0 22px; }
@@ -292,7 +327,6 @@
     }
     .toast.show { opacity: 1; transform: translateY(0); }
 
-    /* ================= RESPONSIVE ================= */
     @media (max-width: 960px) {
       .content { grid-template-columns: 1fr; }
       .search { display: none; }
@@ -306,116 +340,84 @@
       .form-grid { grid-template-columns: 1fr; }
       .user-text { display: none; }
     }
-    @media (prefers-reduced-motion: reduce) {
-      .sb-item, .sb-icon-wrap, .btn, .toast { transition: none; }
-    }
   </style>
 </head>
 
 <body>
-  <div class="layout">
+  <!-- Noodle Loader Overlay -->
+  <div id="loader-overlay">
+    <div class="noodle-loader">🍜</div>
+    <div class="loader-text">Slurping up profile data...</div>
+  </div>
 
+  <div class="layout">
     <!-- ================= LEFT SIDEBAR ================= -->
     <aside class="sidebar">
-  <div class="sb-logo">
-    <svg class="sb-logo-icon" viewBox="0 0 48 36" aria-hidden="true">
-      <path d="M24 2L1 13l23 11 23-11L24 2z" fill="currentColor" />
-      <path d="M10 19v8c0 3 6.5 7 14 7s14-4 14-7v-8l-14 6.5L10 19z" fill="currentColor" />
-      <path d="M44 14v12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
-    </svg>
-    <span class="sb-logo-text">University</span>
-  </div>
+      <div class="sb-logo">
+        <svg class="sb-logo-icon" viewBox="0 0 48 36" aria-hidden="true">
+          <path d="M24 2L1 13l23 11 23-11L24 2z" fill="currentColor" />
+          <path d="M10 19v8c0 3 6.5 7 14 7s14-4 14-7v-8l-14 6.5L10 19z" fill="currentColor" />
+          <path d="M44 14v12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+        </svg>
+        <span class="sb-logo-text">University</span>
+      </div>
 
-  <nav class="sb-nav" aria-label="Main navigation">
-    <ul class="sb-list">
-      <!-- Student Profile -->
-      <li>
-        <a class="sb-item c-student" href="Profile.html">
-          <span class="sb-icon-wrap">
-            <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
-          </span>
-          <span class="sb-label">Student Profile</span>
-        </a>
-      </li>
+      <nav class="sb-nav" aria-label="Main navigation">
+        <ul class="sb-list">
+          <li>
+            <a class="sb-item c-student active" href="Profile.html" aria-current="page">
+              <span class="sb-icon-wrap"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></span>
+              <span class="sb-label">Student Profile</span>
+            </a>
+          </li>
+          <li>
+            <a class="sb-item c-attendance" href="Attendence.html">
+              <span class="sb-icon-wrap"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></span>
+              <span class="sb-label">Attendance</span>
+            </a>
+          </li>
+          <li>
+            <a class="sb-item c-schedule" href="StudentDashboard.html">
+              <span class="sb-icon-wrap"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg></span>
+              <span class="sb-label">Schedule</span>
+            </a>
+          </li>
+          <li>
+            <a class="sb-item c-grades" href="StudentDashboard.html">
+              <span class="sb-icon-wrap"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 11h6M9 15h6"/></svg></span>
+              <span class="sb-label">Grades</span>
+            </a>
+          </li>
+          <li>
+            <a class="sb-item c-library" href="StudentDashboard.html">
+              <span class="sb-icon-wrap"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6c-2-1.5-5-2-9-2v14c4 0 7 .5 9 2 2-1.5 5-2 9-2V4c-4 0-7 .5-9 2z"/><path d="M12 6v14"/></svg></span>
+              <span class="sb-label">Library</span>
+            </a>
+          </li>
+          
+        </ul>
+      </nav>
 
-      <!-- Attendance -->
-      <li>
-        <a class="sb-item c-attendance" href="Attendence.html">
-          <span class="sb-icon-wrap">
-            <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
-          </span>
-          <span class="sb-label">Attendance</span>
-        </a>
-      </li>
+      <div class="sb-footer">
+        <button class="sb-item c-logout" id="logout" type="button">
+          <span class="sb-icon-wrap"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg></span>
+          <span class="sb-label">Logout</span>
+        </button>
+      </div>
+    </aside>
 
-      <!-- Schedule -->
-      <li>
-        <a class="sb-item c-schedule" href="Schedule.html">
-          <span class="sb-icon-wrap">
-            <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>
-          </span>
-          <span class="sb-label">Schedule</span>
-        </a>
-      </li>
-
-      <!-- Grades -->
-      <li>
-        <a class="sb-item c-grades" href="Grades.html">
-          <span class="sb-icon-wrap">
-            <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 11h6M9 15h6"/></svg>
-          </span>
-          <span class="sb-label">Grades</span>
-        </a>
-      </li>
-
-      <!-- Library -->
-      <li>
-        <a class="sb-item c-library" href="Library.html">
-          <span class="sb-icon-wrap">
-            <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6c-2-1.5-5-2-9-2v14c4 0 7 .5 9 2 2-1.5 5-2 9-2V4c-4 0-7 .5-9 2z"/><path d="M12 6v14"/></svg>
-          </span>
-          <span class="sb-label">Library</span>
-        </a>
-      </li>
-
-      <!-- Campus Map -->
-      <li>
-        <a class="sb-item c-map" href="CampusMap.html">
-          <span class="sb-icon-wrap">
-            <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
-          </span>
-          <span class="sb-label">Campus Map</span>
-        </a>
-      </li>
-    </ul>
-  </nav>
-
-  <div class="sb-footer">
-    <button class="sb-item c-logout" id="logout" type="button">
-      <span class="sb-icon-wrap">
-        <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
-      </span>
-      <span class="sb-label">Logout</span>
-    </button>
-  </div>
-</aside>
-
-    <!-- ================= MAIN ================= -->
+    <!-- ================= MAIN CONTENT ================= -->
     <div class="main">
-
       <header class="topbar">
         <h1>Student Profile</h1>
-
         <label class="search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
           <input type="text" placeholder="Search" aria-label="Search" />
         </label>
-
         <div class="bell" aria-label="Notifications">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>
           <span class="count">2</span>
         </div>
-
         <div class="user">
           <div class="mini-avatar" id="miniAvatar"></div>
           <div class="user-text">
@@ -426,8 +428,7 @@
       </header>
 
       <main class="content">
-
-        <!-- ===== Left: photo + summary ===== -->
+        <!-- Left: photo + summary -->
         <section class="card profile-card" aria-label="Profile summary">
           <div class="avatar" id="avatar"></div>
           <p class="p-name" id="sName">Student Name</p>
@@ -443,13 +444,12 @@
             <input type="file" id="photoInput" accept="image/png, image/jpeg, image/webp" hidden />
           </div>
           <p class="photo-error" id="photoError" role="alert"></p>
-          <p class="hint">Cat avatar shows until you upload a photo. JPG, PNG or WebP, up to 2 MB.</p>
+          <p class="hint">JPG, PNG or WebP, up to 2 MB.</p>
         </section>
 
-        <!-- ===== Right: details ===== -->
+        <!-- Right: details -->
         <section class="card" aria-label="Student details">
           <form id="profileForm" novalidate>
-
             <div class="section-head">
               <h2>Personal details</h2>
               <button type="button" class="btn" id="editBtn">
@@ -524,18 +524,22 @@
               <button type="button" class="btn" id="cancelBtn">Cancel</button>
               <button type="submit" class="btn btn-primary">Save changes</button>
             </div>
-
           </form>
         </section>
-
       </main>
     </div>
   </div>
 
   <div class="toast" id="toast" role="status"></div>
 
+  <!-- Page Load Script & Loader Remover -->
   <script>
-    /* ---------- Default student data (replace with your backend data) ---------- */
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.body.classList.add("loaded");
+      }, 400);
+    });
+
     const DEFAULT_DATA = {
       fullName: "Student Name",
       gender: "Male",
@@ -549,44 +553,13 @@
     };
 
     const BRANCHES = {
-      "B.Tech": [
-        "Computer Science and Engineering",
-        "Information Technology",
-        "Electronics and Communication",
-        "Electrical Engineering",
-        "Mechanical Engineering",
-        "Civil Engineering"
-      ],
-      "B.Sc": [
-        "Physics",
-        "Chemistry",
-        "Mathematics",
-        "Computer Science",
-        "Biotechnology"
-      ]
+      "B.Tech": ["Computer Science and Engineering", "Information Technology", "Electronics and Communication", "Electrical Engineering", "Mechanical Engineering", "Civil Engineering"],
+      "B.Sc": ["Physics", "Chemistry", "Mathematics", "Computer Science", "Biotechnology"]
     };
 
     const STORAGE_KEY = "studentProfile";
+    const CAT_SVG = `<svg viewBox="0 0 112 112" role="img" aria-label="Default cat avatar" xmlns="http://www.w3.org/2000/svg"><rect width="112" height="112" fill="#ece8f4"/><path d="M26 52 L28 24 L50 38 Z" fill="#ffffff" stroke="#4a1d7a" stroke-width="2.5" stroke-linejoin="round"/><path d="M86 52 L84 24 L62 38 Z" fill="#ffffff" stroke="#4a1d7a" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="56" cy="62" rx="30" ry="26" fill="#ffffff" stroke="#4a1d7a" stroke-width="2.5"/><circle cx="45" cy="58" r="3.5" fill="#4a1d7a"/><circle cx="67" cy="58" r="3.5" fill="#4a1d7a"/></svg>`;
 
-    /* ---------- Cute cat avatar (shown when no photo is uploaded) ---------- */
-    const CAT_SVG = `
-      <svg viewBox="0 0 112 112" role="img" aria-label="Default cat avatar" xmlns="http://www.w3.org/2000/svg">
-        <rect width="112" height="112" fill="#ece8f4"/>
-        <path d="M26 52 L28 24 L50 38 Z" fill="#ffffff" stroke="#4a1d7a" stroke-width="2.5" stroke-linejoin="round"/>
-        <path d="M86 52 L84 24 L62 38 Z" fill="#ffffff" stroke="#4a1d7a" stroke-width="2.5" stroke-linejoin="round"/>
-        <path d="M31 46 L32 33 L42 40 Z" fill="#e9b8d2"/>
-        <path d="M81 46 L80 33 L70 40 Z" fill="#e9b8d2"/>
-        <ellipse cx="56" cy="62" rx="30" ry="26" fill="#ffffff" stroke="#4a1d7a" stroke-width="2.5"/>
-        <circle cx="45" cy="58" r="3.5" fill="#4a1d7a"/>
-        <circle cx="67" cy="58" r="3.5" fill="#4a1d7a"/>
-        <circle cx="38" cy="67" r="4" fill="#f3c6dc" opacity="0.8"/>
-        <circle cx="74" cy="67" r="4" fill="#f3c6dc" opacity="0.8"/>
-        <path d="M52 67 L60 67 L56 72 Z" fill="#db2777" stroke="#db2777" stroke-width="1.5" stroke-linejoin="round"/>
-        <path d="M56 72 Q56 77 51 77 M56 72 Q56 77 61 77" fill="none" stroke="#4a1d7a" stroke-width="2" stroke-linecap="round"/>
-        <path d="M30 66 L16 63 M30 71 L17 74 M82 66 L96 63 M82 71 L95 74" stroke="#4a1d7a" stroke-width="2" stroke-linecap="round"/>
-      </svg>`;
-
-    /* ---------- Helpers ---------- */
     const $ = (id) => document.getElementById(id);
     const form = $("profileForm");
     const fields = ["fullName", "gender", "phone1", "phone2", "email", "roll", "course", "branch"];
@@ -634,11 +607,8 @@
       }
     }
 
-    /* ---------- Render ---------- */
     function renderAvatar() {
-      const html = data.photo
-        ? `<img src="${data.photo}" alt="Student photo" />`
-        : CAT_SVG;
+      const html = data.photo ? `<img src="${data.photo}" alt="Student photo" />` : CAT_SVG;
       $("avatar").innerHTML = html;
       $("miniAvatar").innerHTML = html;
     }
@@ -657,10 +627,8 @@
         if (f !== "branch") $(f).value = data[f];
       });
       $("branch").value = data.branch;
-      clearErrors();
     }
 
-    /* ---------- Edit mode ---------- */
     function setEditing(on) {
       editing = on;
       form.classList.toggle("editing", on);
@@ -675,52 +643,12 @@
     }
 
     $("editBtn").addEventListener("click", () => setEditing(true));
-
-    $("cancelBtn").addEventListener("click", () => {
-      fillForm();
-      setEditing(false);
-    });
-
-    $("course").addEventListener("change", (e) => {
-      fillBranches(e.target.value);
-    });
-
-    /* ---------- Validation ---------- */
-    function setError(id, msg) {
-      const field = $(id).closest(".field");
-      field.classList.toggle("invalid", !!msg);
-      const p = field.querySelector(".error");
-      if (p) p.textContent = msg || "";
-    }
-
-    function clearErrors() {
-      document.querySelectorAll(".field").forEach((f) => {
-        f.classList.remove("invalid");
-        const p = f.querySelector(".error");
-        if (p) p.textContent = "";
-      });
-    }
-
-    const phoneOk = (v) => /^\+?[0-9\s-]{10,15}$/.test(v.trim());
-    const emailOk = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
-
-    function validate() {
-      clearErrors();
-      let ok = true;
-
-      if ($("fullName").value.trim().length < 2) { setError("fullName", "Enter your full name"); ok = false; }
-      if (!phoneOk($("phone1").value)) { setError("phone1", "Enter a valid contact number"); ok = false; }
-      if ($("phone2").value.trim() && !phoneOk($("phone2").value)) { setError("phone2", "Enter a valid contact number"); ok = false; }
-      if (!emailOk($("email").value)) { setError("email", "Enter a valid email address"); ok = false; }
-
-      return ok;
-    }
+    $("cancelBtn").addEventListener("click", () => { fillForm(); setEditing(false); });
+    $("course").addEventListener("change", (e) => { fillBranches(e.target.value); });
 
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       if (!editing) return;
-      if (!validate()) return;
-
       fields.forEach((f) => { data[f] = $(f).value.trim(); });
       saveData();
       renderSummary();
@@ -728,58 +656,27 @@
       showToast("Profile saved");
     });
 
-    /* ---------- Photo upload / remove ---------- */
-    const MAX_SIZE = 2 * 1024 * 1024;
-
     $("uploadBtn").addEventListener("click", () => $("photoInput").click());
-
     $("photoInput").addEventListener("change", (e) => {
       const file = e.target.files[0];
-      $("photoError").textContent = "";
       if (!file) return;
-
-      if (!/^image\/(png|jpeg|webp)$/.test(file.type)) {
-        $("photoError").textContent = "Choose a JPG, PNG, or WebP image.";
-        e.target.value = "";
-        return;
-      }
-      if (file.size > MAX_SIZE) {
-        $("photoError").textContent = "That photo is over 2 MB. Choose a smaller one.";
-        e.target.value = "";
-        return;
-      }
-
       const reader = new FileReader();
       reader.onload = () => {
         data.photo = reader.result;
-        if (!saveData()) {
-          $("photoError").textContent = "Couldn't save the photo in this browser.";
-        }
+        saveData();
         renderAvatar();
         showToast("Photo updated");
       };
       reader.readAsDataURL(file);
-      e.target.value = "";
     });
 
     $("removeBtn").addEventListener("click", () => {
-      if (!data.photo) {
-        showToast("No photo to remove");
-        return;
-      }
       data.photo = "";
       saveData();
       renderAvatar();
       showToast("Photo removed");
     });
 
-    /* ---------- Logout ---------- */
-    $("logout").addEventListener("click", () => {
-      console.log("logout");
-      // window.location.href = "login.html";
-    });
-
-    /* ---------- Init ---------- */
     renderAvatar();
     renderSummary();
     fillForm();
