@@ -49,6 +49,7 @@ export default function Login({ onLoginSuccess }) {
       });
       const data = await res.json();
       if (data.success) {
+        localStorage.setItem("userEmail", data.email);
         window.location.href = '/student/StudentDashboard.html';
       } else {
         setMessage({ text: data.message || "Google login failed", type: 'error' });
@@ -72,6 +73,7 @@ export default function Login({ onLoginSuccess }) {
       const data = await response.json();
 
       if (data.success) {
+        localStorage.setItem("userEmail", data.email);
         window.location.href = '/student/StudentDashboard.html';
       } else {
         setMessage({ text: data.message || "Login failed", type: 'error' }); // Pop-up ki jagah HTML error msg

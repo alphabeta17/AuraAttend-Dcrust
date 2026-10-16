@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Student Dashboard - AuraAttend</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --purple: #4a1d7a;
+      --purple-dark: #3b1566;
+      --purple-tint: #ece8f4;
+      --purple-soft: #f5f3fa;
+      --bg: #f6f5fa;
+      --card: #ffffff;
+      --border: #e6e3ee;
+      --text: #2b2b36;
+      --muted: #6b6878;
+      --sb-width: 240px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Roboto", "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+    }
+    #loader-overlay {
+      position: fixed; top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: var(--card);
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      z-index: 9999;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+    .noodle-loader { font-size: 50px; animation: bounceSpin 1.2s infinite ease-in-out; }
+    .loader-text { margin-top: 14px; font-size: 15px; font-weight: 500; color: var(--purple); }
+    @keyframes bounceSpin {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-15px) rotate(15deg); }
+    }
+    body.loaded #loader-overlay { opacity: 0; visibility: hidden; }
+    .layout { display: flex; min-height: 100vh; }
+    .sidebar {
+      position: sticky; top: 0;
+      display: flex; flex-direction: column;
+      width: var(--sb-width); height: 100vh;
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .sb-logo { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 28px 16px 26px; }
+    .sb-logo-icon { width: 42px; height: 32px; color: var(--purple-dark); }
+    .sb-logo-text { font-size: 15px; font-weight: 600; letter-spacing: 0.2px; }
+    .sb-nav { flex: 1; overflow-y: auto; }
+    .sb-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+    .sb-item {
+      position: relative; display: flex; align-items: center; gap: 14px;
+      width: calc(100% - 24px); margin: 0 12px; padding: 8px 12px;
+      border: none; border-radius: 12px; background: transparent;
+      color: var(--text); font-family: inherit; font-size: 15px;
+      text-align: left; text-decoration: none; cursor: pointer; transition: background 0.2s ease;
+    }
+    .sb-item:hover { background: var(--purple-soft); }
+    .sb-icon-wrap {
+      display: grid; place-items: center; width: 36px; height: 36px;
+      border-radius: 10px; background: var(--c-bg); color: var(--c); flex-shrink: 0;
+    }
+    .sb-icon { width: 20px; height: 20px; }
+    .sb-label { white-space: nowrap; }
+    .sb-item.active { background: var(--c-bg); font-weight: 500; }
+    .sb-item.active .sb-icon-wrap { background: var(--c); color: #fff; box-shadow: 0 4px 10px -2px var(--c); }
+    .c-student { --c: #7c3aed; --c-bg: #f1eaff; }
+    .c-attendance { --c: #4a1d7a; --c-bg: #ece8f4; }
+    .c-schedule { --c: #0284c7; --c-bg: #e0f2fe; }
+    .c-grades { --c: #d97706; --c-bg: #fef3c7; }
+    .c-library { --c: #059669; --c-bg: #d1fae5; }
+    .sb-footer { padding: 16px 0 28px; }
+    .c-logout { --c: #475569; --c-bg: #e8ecf1; }
+    .main { flex: 1; padding: 28px 32px; }
+    .main h1 { margin: 0 0 8px; font-size: 24px; font-weight: 500; }
+  </style>
+</head>
+<body>
+  <div id="loader-overlay">
+    <div class="noodle-loader">🍜</div>
+    <div class="loader-text">Slurping up dashboard data...</div>
+  </div>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sb-logo">
+        <svg class="sb-logo-icon" viewBox="0 0 48 36" aria-hidden="true">
+          <path d="M24 2L1 13l23 11 23-11L24 2z" fill="currentColor" />
+          <path d="M10 19v8c0 3 6.5 7 14 7s14-4 14-7v-8l-14 6.5L10 19z" fill="currentColor" />
+          <path d="M44 14v12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+        </svg>
+        <span class="sb-logo-text">University</span>
+      </div>
+      <nav class="sb-nav" aria-label="Main navigation">
+        <ul class="sb-list">
+          <li>
+            <a class="sb-item c-student " href="Profile.html">
+              <span class="sb-icon-wrap"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></span>
+              <span class="sb-label">Student Profile</span>
+            </a>
+          </li>
+          <li>
+            <a class="sb-item c-attendance" href="Attendence.html">
+              <span class="sb-icon-wrap"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></span>
+              <span class="sb-label">Attendance</span>
+            </a>
+          </li>
+          <li>
+            <a class="sb-item c-schedule" href="StudentDashboard.html">
+              <span class="sb-icon-wrap"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg></span>
+              <span class="sb-label">Schedule</span>
+            </a>
+          </li>
+          <li>
+            <a class="sb-item c-grades" href="StudentDashboard.html">
+              <span class="sb-icon-wrap"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 11h6M9 15h6"/></svg></span>
+              <span class="sb-label">Grades</span>
+            </a>
+          </li>
+          <li>
+            <a class="sb-item c-library" href="StudentDashboard.html">
+              <span class="sb-icon-wrap"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6c-2-1.5-5-2-9-2v14c4 0 7 .5 9 2 2-1.5 5-2 9-2V4c-4 0-7 .5-9 2z"/><path d="M12 6v14"/></svg></span>
+              <span class="sb-label">Library</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <div class="sb-footer">
+        <button class="sb-item c-logout" id="logout" type="button">
+          <span class="sb-icon-wrap"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg></span>
+          <span class="sb-label">Logout</span>
+        </button>
+      </div>
+    </aside>
+    <main class="main">
+      <h1>Welcome to Student Dashboard</h1>
+      <p>Your attendance and academic records will appear here.</p>
+    </main>
+  </div>
+  <script>
+    window.addEventListener("load", () => {
+      setTimeout(() => { document.body.classList.add("loaded"); }, 400);
+    });
+  </script>
+</body>
+</html>

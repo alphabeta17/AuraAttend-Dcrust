@@ -9,6 +9,11 @@ export default function SignupForm({ onSwitchToLogin, onSignupSuccess }) {
   const [universityId, setUniversityId] = useState('');
   const [message, setMessage] = useState({ text: '', type: '' });
   const [emailError, setEmailError] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [gender, setGender] = useState('Male');
+  const [course, setCourse] = useState('B.Tech');
+  const [branch, setBranch] = useState('Computer Science and Engineering');
 
   const GOOGLE_CLIENT_ID = "166248464188-kh51ko7innf6jk9ojgalgtk61352uqcb.apps.googleusercontent.com";
 
@@ -98,12 +103,18 @@ export default function SignupForm({ onSwitchToLogin, onSignupSuccess }) {
           otp, 
           password, 
           roll_no: rollNo, 
-          university_id: parseInt(universityId) || null 
+          university_id: parseInt(universityId) || null,
+          fullName: fullName, 
+          gender: gender, 
+          phone_no: phone, 
+          course: course, 
+          branch: branch
         })
       });
       const data = await response.json();
 
       if (data.success) {
+        localStorage.setItem("userEmail", email);
         if (onSignupSuccess) onSignupSuccess('student');
         window.location.href = '/student/StudentDashboard.html';
       } else {
@@ -114,115 +125,126 @@ export default function SignupForm({ onSwitchToLogin, onSignupSuccess }) {
     }
   };
 
-  return (
-    <div className="form-panel">
-      {step === 1 ? (
-        <form onSubmit={handleRequestOtp} className="auth-form">
-          <div className="form-main-content">
-            <div className="input-section">
-              <div className="form-header">
-                <h2>Create Account</h2>
-                <p>Enter your email to receive a verification OTP</p>
-              </div>
-
-              <div className="input-group">
-                <label htmlFor="signup-email">Email-ID / Mobile Number</label>
-                <div className="input-field-wrapper">
-                  <i className="fa-regular fa-envelope"></i>
-                  <input 
-                    type="text" 
-                    placeholder="Enter your email or mobile" 
-                    value={email} 
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      setEmailError("");
-                    }} 
-                    onBlur={handleEmailBlur}
-                    required 
-                  />
-                </div>
-                {emailError && <span style={{ color: '#dc2626', fontSize: '12px', marginTop: '4px', display: 'block', fontWeight: 500 }}>{emailError}</span>}
-              </div>
-
-              {message.text && (
-                <div style={{ margin: '8px 0', padding: '8px 12px', borderRadius: '6px', fontSize: '13px', textAlign: 'center', backgroundColor: message.type === 'error' ? '#fee2e2' : '#dcfce7', color: message.type === 'error' ? '#dc2626' : '#16a34a', fontWeight: 500 }}>
-                  {message.text}
-                </div>
-              )}
-
-              <div className="form-actions-inline">
-                <span className="signup-prompt-text">Already have an account? <span onClick={onSwitchToLogin} className="create-link" style={{ cursor: 'pointer', color: '#7c3aed', fontWeight: 600 }}>Sign in</span></span>
-              </div>
-            </div>
-          </div>
-
-          <button type="submit" className="submit-btn">Send OTP</button>
-
-          <div className="divider"><span>Or connect with</span></div>
-          <div id="googleSignupButtonDiv" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}></div>
-        </form>
-      ) : (
-        <form onSubmit={handleVerifyAndSignup} className="auth-form">
-          {/* Top-left Back Arrow */}
-          <div style={{ marginBottom: '10px' }}>
-            <i 
-              className="fa-solid fa-arrow-left" 
-              onClick={() => { setStep(1); setMessage({ text: '', type: '' }); }} 
-              style={{ cursor: 'pointer', fontSize: '18px', color: '#4b5563' }}
-              title="Go back"
-            ></i>
-          </div>
-
-          <div className="form-main-content">
-            <div className="input-section">
-              <div className="form-header">
-                <h2>Verify OTP</h2>
-                <p>Enter the 6-digit code sent to {email}</p>
-              </div>
-
-              <div className="input-group">
-                <label htmlFor="otp">Enter OTP</label>
-                <div className="input-field-wrapper">
-                  <i className="fa-solid fa-shield-keyhole"></i>
-                  <input type="text" placeholder="123456" value={otp} onChange={(e) => setOtp(e.target.value)} maxLength="6" required />
-                </div>
-              </div>
-
-              <div className="input-group">
-                <label htmlFor="rollNo">Roll Number</label>
-                <div className="input-field-wrapper">
-                  <i className="fa-solid fa-id-card"></i>
-                  <input type="text" placeholder="Enter your roll number" value={rollNo} onChange={(e) => setRollNo(e.target.value)} required />
-                </div>
-              </div>
-
-              <div className="input-group">
-                <label htmlFor="universityId">University Password / ID (INT)</label>
-                <div className="input-field-wrapper">
-                  <i className="fa-solid fa-key"></i>
-                  <input type="number" placeholder="Enter numeric university ID" value={universityId} onChange={(e) => setUniversityId(e.target.value)} required />
-                </div>
-              </div>
-
-              <div className="input-group">
-                <label htmlFor="new-password">Set Password</label>
-                <div className="input-field-wrapper">
-                  <i className="fa-solid fa-lock"></i>
-                  <input type="password" placeholder="Create a strong password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {message.text && (
-            <div style={{ margin: '8px 0', padding: '8px 12px', borderRadius: '6px', fontSize: '13px', textAlign: 'center', backgroundColor: message.type === 'error' ? '#fee2e2' : '#dcfce7', color: message.type === 'error' ? '#dc2626' : '#16a34a', fontWeight: 500 }}>
-              {message.text}
-            </div>
-          )}
-
-          <button type="submit" className="submit-btn">Verify & Complete Signup</button>
-        </form>
-      )}
-    </div>
-  );
+return (
+        <div className="form-panel">
+            {step === 1 ? (
+                <form onSubmit={handleRequestOtp} className="auth-form">
+                    <div className="form-main-content">
+                        <div className="input-section">
+                            <div className="form-header">
+                                <h2>Create Account</h2>
+                                <p>Enter your email to receive a verification OTP</p>
+                            </div>
+                            <div className="input-group">
+                                <label htmlFor="signup-email">Email-ID / Mobile Number</label>
+                                <div className="input-field-wrapper">
+                                    <i className="fa-regular fa-envelope"></i>
+                                    <input 
+                                        type="text" 
+                                        placeholder="Enter your email or mobile" 
+                                        value={email} 
+                                        onChange={(e) => { setEmail(e.target.value); setEmailError(""); }} 
+                                        onBlur={handleEmailBlur} 
+                                        required 
+                                    />
+                                </div>
+                                {emailError && <span style={{ color: '#dc2626', fontSize: '12px', marginTop: '4px', display: 'block', fontWeight: 500 }}>{emailError}</span>}
+                            </div>
+                            {message.text && (
+                                <div style={{ margin: '8px 0', padding: '8px 12px', borderRadius: '6px', fontSize: '13px', textAlign: 'center', backgroundColor: message.type === 'error' ? '#fee2e2' : '#dcfce7', color: message.type === 'error' ? '#dc2626' : '#16a34a', fontWeight: 500 }}>
+                                    {message.text}
+                                </div>
+                            )}
+                            <div className="form-actions-inline">
+                                <span className="signup-prompt-text">Already have an account? <span onClick={onSwitchToLogin} className="create-link" style={{ cursor: 'pointer', color: '#7c3aed', fontWeight: 600 }}>Sign in</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" className="submit-btn">Send OTP</button>
+                    <div className="divider"><span>Or connect with</span></div>
+                    <div id="googleSignupButtonDiv" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}></div>
+                </form>
+            ) : (
+                <form onSubmit={handleVerifyAndSignup} className="auth-form">
+                    {/* Top-left Back Arrow */}
+                    <div style={{ marginBottom: '10px' }}>
+                        <i className="fa-solid fa-arrow-left" onClick={() => { setStep(1); setMessage({ text: '', type: '' }); }} style={{ cursor: 'pointer', fontSize: '18px', color: '#4b5563' }} title="Go back"></i>
+                    </div>
+                    <div className="form-main-content">
+                        <div className="input-section">
+                            <div className="form-header">
+                                <h2>Verify OTP</h2>
+                                <p>Enter the 6-digit code sent to {email}</p>
+                            </div>
+                            <div className="input-group">
+                                <label htmlFor="otp">Enter OTP</label>
+                                <div className="input-field-wrapper">
+                                    <i className="fa-solid fa-shield-keyhole"></i>
+                                    <input type="text" placeholder="123456" value={otp} onChange={(e) => setOtp(e.target.value)} maxLength="6" required />
+                                </div>
+                            </div>
+                            <div className="input-group">
+                                <label htmlFor="rollNo">Roll Number</label>
+                                <div className="input-field-wrapper">
+                                    <i className="fa-solid fa-id-card"></i>
+                                    <input type="text" placeholder="Enter your roll number" value={rollNo} onChange={(e) => setRollNo(e.target.value)} required />
+                                </div>
+                            </div>
+                            <div className="input-group">
+                                <label htmlFor="universityId">University Password / ID (INT)</label>
+                                <div className="input-field-wrapper">
+                                    <i className="fa-solid fa-key"></i>
+                                    <input type="number" placeholder="Enter numeric university ID" value={universityId} onChange={(e) => setUniversityId(e.target.value)} required />
+                                </div>
+                            </div>
+                            <div className="input-group">
+                                <label htmlFor="new-password">Set Password</label>
+                                <div className="input-field-wrapper">
+                                    <i className="fa-solid fa-lock"></i>
+                                    <input type="password" placeholder="Create a strong password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                                </div>
+                            </div>
+                            <div className="input-group">
+                                <label>Full Name</label>
+                                <div className="input-field-wrapper">
+                                    <i className="fa-solid fa-user"></i>
+                                    <input type="text" placeholder="Enter full name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+                                </div>
+                            </div>
+                            <div className="input-group">
+                                <label>Phone Number</label>
+                                <div className="input-field-wrapper">
+                                    <i className="fa-solid fa-phone"></i>
+                                    <input type="tel" placeholder="Phone number" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                                <div className="input-group" style={{ flex: 1 }}>
+                                    <label>Gender</label>
+                                    <select value={gender} onChange={(e) => setGender(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px' }}>
+                                        <option>Male</option>
+                                        <option>Female</option>
+                                        <option>Other</option>
+                                    </select>
+                                </div>
+                                <div className="input-group" style={{ flex: 1 }}>
+                                    <label>Course</label>
+                                    <select value={course} onChange={(e) => setCourse(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px' }}>
+                                        <option>B.Tech</option>
+                                        <option>B.Sc</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {message.text && (
+                        <div style={{ margin: '8px 0', padding: '8px 12px', borderRadius: '6px', fontSize: '13px', textAlign: 'center', backgroundColor: message.type === 'error' ? '#fee2e2' : '#dcfce7', color: message.type === 'error' ? '#dc2626' : '#16a34a', fontWeight: 500 }}>
+                            {message.text}
+                        </div>
+                    )}
+                    <button type="submit" className="submit-btn">Verify & Complete Signup</button>
+                </form>
+            )}
+        </div>
+    );
 }

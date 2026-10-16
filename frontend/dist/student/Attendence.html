@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EduCentral – Attendance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --purple: #4a1d7a;
+      --purple-dark: #3b1566;
+      --purple-tint: #ece8f4;
+      --purple-soft: #f5f3fa;
+      --bg: #f6f5fa;
+      --card: #ffffff;
+      --border: #e6e3ee;
+      --text: #2b2b36;
+      --muted: #6b6878;
+      --sb-width: 240px;
+
+      /* Attendance Card Vars */
+      --violet-900: #2a1252;
+      --violet-800: #3d1f73;
+      --violet-700: #5b21b6;
+      --violet-600: #7c3aed;
+      --violet-100: #f1eafd;
+      --pink-500: #d946b8;
+      --ring-track: #ece6fa;
+      --gradient: linear-gradient(135deg, #7c3aed 0%, #d946b8 100%);
+      --shadow-card: 0 4px 16px rgba(110, 60, 190, 0.08);
+      --shadow-chip: 0 2px 8px rgba(110, 60, 190, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Plus Jakarta Sans', "Roboto", "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    #loader-overlay {
+      position: fixed; top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: var(--card);
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      z-index: 9999;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+    .noodle-loader { font-size: 50px; animation: bounceSpin 1.2s infinite ease-in-out; }
+    .loader-text { margin-top: 14px; font-size: 15px; font-weight: 500; color: var(--purple); }
+    @keyframes bounceSpin {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-15px) rotate(15deg); }
+    }
+    body.loaded #loader-overlay { opacity: 0; visibility: hidden; }
+    
+    .layout { display: flex; min-height: 100vh; }
+
+    /* ================= SIDEBAR ================= */
+    .sidebar {
+      position: sticky;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+      width: var(--sb-width);
+      height: 100vh;
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .sb-logo { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 28px 16px 26px; }
+    .sb-logo-icon { width: 42px; height: 32px; color: var(--purple-dark); }
+    .sb-logo-text { font-size: 15px; font-weight: 600; letter-spacing: 0.2px; }
+
+    .sb-nav { flex: 1; overflow-y: auto; }
+    .sb-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+
+    .sb-item {
+      --c: #4a1d7a;
+      --c-bg: #ece8f4;
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: calc(100% - 24px);
+      margin: 0 12px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 16px;
+      text-align: left;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .sb-item:hover { background: var(--purple-soft); }
+    .sb-item:focus-visible { outline: 2px solid var(--c); outline-offset: 2px; }
+
+    .sb-icon-wrap {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--c-bg);
+      color: var(--c);
+      flex-shrink: 0;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .sb-icon { width: 20px; height: 20px; }
+    .sb-label { white-space: nowrap; }
+    .sb-item:hover .sb-icon-wrap { transform: scale(1.08); }
+
+    .sb-item.active { background: var(--c-bg); font-weight: 500; }
+    .sb-item.active .sb-icon-wrap { background: var(--c); color: #fff; box-shadow: 0 4px 10px -2px var(--c); }
+    .sb-item.active::before {
+      content: "";
+      position: absolute;
+      left: -12px;
+      top: 4px;
+      bottom: 4px;
+      width: 4px;
+      border-radius: 0 4px 4px 0;
+      background: var(--c);
+    }
+
+    .c-student    { --c: #7c3aed; --c-bg: #f1eaff; }
+    .c-attendance { --c: #4a1d7a; --c-bg: #ece8f4; }
+    .c-schedule   { --c: #0284c7; --c-bg: #e0f2fe; }
+    .c-grades     { --c: #d97706; --c-bg: #fef3c7; }
+    .c-library    { --c: #059669; --c-bg: #d1fae5; }
+    .c-map        { --c: #e11d48; --c-bg: #ffe4e9; }
+    .c-profile    { --c: #db2777; --c-bg: #fce7f3; }
+    .c-logout     { --c: #475569; --c-bg: #e8ecf1; }
+
+    .sb-footer { padding: 16px 0 28px; }
+
+    /* ================= MAIN ================= */
+    .main { flex: 1; min-width: 0; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 14px 32px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar h1 { margin: 0; font-size: 24px; font-weight: 500; flex: 1; }
+
+    .search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 260px;
+      padding: 9px 14px;
+      background: var(--purple-tint);
+      border-radius: 10px;
+      color: var(--muted);
+    }
+    .search input { border: none; background: transparent; outline: none; font: inherit; width: 100%; color: var(--text); }
+    .search svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    .bell { position: relative; display: grid; place-items: center; width: 38px; height: 38px; color: var(--purple); }
+    .bell svg { width: 22px; height: 22px; }
+    .bell .count {
+      position: absolute; top: 2px; right: 2px;
+      background: var(--purple); color: #fff;
+      font-size: 10px; font-weight: 500;
+      width: 16px; height: 16px; border-radius: 50%;
+      display: grid; place-items: center;
+    }
+
+    .user { display: flex; align-items: center; gap: 10px; }
+    .user .mini-avatar { width: 38px; height: 38px; border-radius: 50%; overflow: hidden; background: var(--purple-tint); flex-shrink: 0; }
+    .user-name { font-size: 14px; font-weight: 500; margin: 0; line-height: 1.2; }
+    .user-id { font-size: 12px; color: var(--muted); margin: 0; }
+
+    /* ================= ATTENDANCE CONTENT ================= */
+    .content {
+      padding: 24px 32px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .banner {
+      position: relative;
+      overflow: hidden;
+      padding: 28px 32px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, var(--violet-800) 0%, var(--violet-900) 100%);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .app-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #8b3fe0 0%, #c04fd6 100%);
+      box-shadow: 0 8px 20px rgba(160, 70, 220, 0.4);
+      flex: none;
+    }
+
+    .banner-text h2 { margin: 0; font-size: 22px; font-weight: 800; }
+    .banner-text p { margin: 4px 0 0; font-size: 13px; opacity: 0.8; }
+
+    .content-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .content-head h2 { margin: 0; font-size: 22px; font-weight: 700; }
+
+    .chips { display: flex; gap: 10px; }
+    .chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-chip);
+    }
+    .chip span { font-size: 12px; font-weight: 600; color: var(--muted); }
+    .chip strong { font-size: 15px; font-weight: 800; color: var(--violet-700); }
+
+    /* ---------- Subjects ---------- */
+    .subjects { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+
+    .subject {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 16px 22px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-card);
+    }
+
+    .ring-wrap { position: relative; flex: none; width: 68px; height: 68px; }
+    .ring {
+      --p: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: conic-gradient(from 0deg, var(--violet-600), var(--pink-500) calc(var(--p) * 1%), var(--ring-track) calc(var(--p) * 1%));
+      -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));
+              mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));
+    }
+    .ring-label {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--violet-900);
+    }
+
+    .subject-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+    .subject-name { font-size: 18px; font-weight: 700; }
+    .subject-count { font-size: 12px; font-weight: 600; color: var(--violet-700); letter-spacing: 0.03em; }
+
+    .btn-summary {
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--violet-700);
+      background: var(--violet-100);
+      border: 0;
+      border-radius: 10px;
+      padding: 8px 16px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-summary:hover { background: var(--gradient); color: #fff; }
+
+    /* ================= RESPONSIVE ================= */
+    @media (max-width: 768px) {
+      .sidebar { width: 76px; }
+      .sb-logo-text, .sb-label { display: none; }
+      .sb-item { justify-content: center; padding: 8px 0; }
+      .topbar { padding: 12px 16px; }
+      .content { padding: 16px; }
+      .search { display: none; }
+    }
+    
+  </style>
+</head>
+<body>
+  <div id="loader-overlay">
+    <div class="noodle-loader">🍜</div>
+    <div class="loader-text">Slurping up dashboard data...</div>
+  </div>
+  <div class="layout">
+
+    <!-- ================= LEFT SIDEBAR ================= -->
+    <aside class="sidebar">
+  <div class="sb-logo">
+    <svg class="sb-logo-icon" viewBox="0 0 48 36" aria-hidden="true">
+      <path d="M24 2L1 13l23 11 23-11L24 2z" fill="currentColor" />
+      <path d="M10 19v8c0 3 6.5 7 14 7s14-4 14-7v-8l-14 6.5L10 19z" fill="currentColor" />
+      <path d="M44 14v12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+    </svg>
+        <span class="sb-logo-text">University</span>
+  </div>
+
+  <nav class="sb-nav" aria-label="Main navigation">
+    <ul class="sb-list">
+      <!-- Student Profile -->
+      <li>
+        <a class="sb-item c-student" href="Profile.html">
+          <span class="sb-icon-wrap">
+            <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+          </span>
+          <span class="sb-label">Student Profile</span>
+        </a>
+      </li>
+      <li>
+            <a class="sb-item c-attendance active" href="Attendence.html" aria-current="page">
+              <span class="sb-icon-wrap"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></span>
+              <span class="sb-label">Attendence</span>
+            </a>
+          </li>
+  <!-- Schedule -->
+      <li>
+        <a class="sb-item c-schedule" href="StudentDashboard.html">
+          <span class="sb-icon-wrap">
+            <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>
+          </span>
+          <span class="sb-label">Schedule</span>
+        </a>
+      </li>
+            <!-- Grades -->
+      <li>
+        <a class="sb-item c-grades" href="StudentDashboard.html">
+          <span class="sb-icon-wrap">
+            <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 11h6M9 15h6"/></svg>
+          </span>
+          <span class="sb-label">Grades</span>
+        </a>
+      </li>
+   <!-- Library -->
+      <li>
+        <a class="sb-item c-library" href="StudentDashboard.html">
+          <span class="sb-icon-wrap">
+            <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6c-2-1.5-5-2-9-2v14c4 0 7 .5 9 2 2-1.5 5-2 9-2V4c-4 0-7 .5-9 2z"/><path d="M12 6v14"/></svg>
+          </span>
+          <span class="sb-label">Library</span>
+        </a>
+      </li>
+      </ul>
+        </nav>
+
+  <div class="sb-footer">
+    <button class="sb-item c-logout" id="logout" type="button">
+      <span class="sb-icon-wrap">
+        <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+      </span>
+      <span class="sb-label">Logout</span>
+    </button>
+  </div>
+</aside>
+    <!-- ================= MAIN CONTENT ================= -->
+    <div class="main">
+
+      <header class="topbar">
+        <h1>Attendance</h1>
+
+        <label class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input type="text" placeholder="Search" aria-label="Search" />
+        </label>
+
+        <div class="bell" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>
+          <span class="count">2</span>
+        </div>
+
+        <div class="user">
+          <div class="mini-avatar">
+            <svg viewBox="0 0 112 112" role="img" xmlns="http://www.w3.org/2000/svg"><rect width="112" height="112" fill="#ece8f4"/><path d="M26 52 L28 24 L50 38 Z" fill="#ffffff" stroke="#4a1d7a" stroke-width="2.5"/><path d="M86 52 L84 24 L62 38 Z" fill="#ffffff" stroke="#4a1d7a" stroke-width="2.5"/><ellipse cx="56" cy="62" rx="30" ry="26" fill="#ffffff" stroke="#4a1d7a" stroke-width="2.5"/><circle cx="45" cy="58" r="3.5" fill="#4a1d7a"/><circle cx="67" cy="58" r="3.5" fill="#4a1d7a"/></svg>
+          </div>
+          <div class="user-text">
+            <p class="user-name">Student Name</p>
+            <p class="user-id">ID: 50000373</p>
+          </div>
+        </div>
+      </header>
+
+      <main class="content">
+
+        <!-- Top Banner -->
+        <div class="banner">
+          <div class="app-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M9 15l2 2 4-4"/></svg>
+          </div>
+          <div class="banner-text">
+            <h2>My Attendance</h2>
+            <p>Check your subject-wise attendance for this semester.</p>
+          </div>
+        </div>
+
+        <!-- Section Header -->
+        <div class="content-head">
+          <h2>Subject Overview</h2>
+          <div class="chips">
+            <div class="chip"><span>Sem</span><strong>3</strong></div>
+            <div class="chip"><span>Branch</span><strong>CSE</strong></div>
+          </div>
+        </div>
+
+        <!-- Subject List -->
+        <ul class="subjects">
+          <li class="subject">
+            <div class="ring-wrap"><div class="ring" style="--p: 45"></div><div class="ring-label">45%</div></div>
+            <div class="subject-info"><div class="subject-name">DSD</div><div class="subject-count">56 OUT OF 70</div></div>
+            <button class="btn-summary" type="button">Summary</button>
+          </li>
+
+          <li class="subject">
+            <div class="ring-wrap"><div class="ring" style="--p: 0"></div><div class="ring-label">--%</div></div>
+            <div class="subject-info"><div class="subject-name">Data structures</div><div class="subject-count">-- OUT OF --</div></div>
+            <button class="btn-summary" type="button">Summary</button>
+          </li>
+
+          <li class="subject">
+            <div class="ring-wrap"><div class="ring" style="--p: 80"></div><div class="ring-label">80%</div></div>
+            <div class="subject-info"><div class="subject-name">OOPs</div><div class="subject-count">80 OUT OF 90</div></div>
+            <button class="btn-summary" type="button">Summary</button>
+          </li>
+
+          <li class="subject">
+            <div class="ring-wrap"><div class="ring" style="--p: 57"></div><div class="ring-label">57%</div></div>
+            <div class="subject-info"><div class="subject-name">CAO</div><div class="subject-count">46 OUT OF 50</div></div>
+            <button class="btn-summary" type="button">Summary</button>
+          </li>
+
+          <li class="subject">
+            <div class="ring-wrap"><div class="ring" style="--p: 90"></div><div class="ring-label">90%</div></div>
+            <div class="subject-info"><div class="subject-name">COI</div><div class="subject-count">23 OUT OF 90</div></div>
+            <button class="btn-summary" type="button">Summary</button>
+          </li>
+        </ul>
+
+      </main>
+    </div>
+  </div>
+  <script>
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.body.classList.add("loaded");
+      }, 400);
+    });
+
+  </script>
+</body>
+</html>
