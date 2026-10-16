@@ -174,38 +174,45 @@ router.get('/get-profile',async (req,res)=>{
 
 // Profile Details Update Route
 router.post('/update-profile', async (req, res) => {
-    const { email, fullName ,gender, phone, course, branch, roll_no, university_id, university_portal_password, photo } = req.body;
-    const portalPassword = university_portal_password || university_id;
+    const { email, fullName, gender, phone, phone2, course, branch, roll_no, university_portal_password, photo } = req.body;
 
     if (!email) {
-        return res.status(400).json({ success: false, message: "Email is required for updating profile." });
+        return res.status(400).json({ success: false, message: "Email is required." });
     }
 
     try {
-        // Database mein email, roll_no, gender, phone_no, course, aur section (branch) update karein
-        const query = `
-            UPDATE users 
-            SET  full_name=?, email = ?,roll_no = ?, gender = ?, phone_no = ?, course = ?, section = ?, university_portal_password = ?, profile_pic=? 
-            WHERE email = ?
-        `;
-        
+        // Pehle check karein user exist karta hai ya nahi
+        const [users] = await db.query('SELECT * FROM users WHERE email=?', [email]);
+        if (users.length === 0) {
+            return res.status(404).json({ success: false, message: "User not found." });
+        }
+        const currentUser = users.only ? users[0] : users[0];
+
+        // Agar koi field empty aayi hai toh purani value retain karein
+        const updatedFullName = fullName !== undefined ? fullName : currentUser.full_name;
+        const updatedRoll = roll_no !== undefined ? roll_no : currentUser.roll_no;
+        const updatedGender = gender !== undefined ? gender : currentUser.gender;
+        const updatedPhone = phone !== undefined ? phone : currentUser.phone_no;
+        const updatedCourse = course !== undefined ? course : currentUser.course;
+        const updatedBranch = branch !== undefined ? branch : currentUser.section;
+        const updatedPhoto = photo !== undefined ? photo : currentUser.profile_pic;
+
+        const query = `UPDATE users SET full_name=?, roll_no=?, gender=?, phone_no=?, course=?, section=?, profile_pic=? WHERE email=?`;
         await db.query(query, [
-            fullName||null,
-            email,
-            roll_no || null,
-            gender || null, 
-            phone || null, 
-            course || null, 
-            branch || null, 
-            portalPassword ? parseInt(portalPassword) : null, 
-            photo || null,
-            email // Current email lookup ke liye
+            updatedFullName, 
+            updatedRoll, 
+            updatedGender, 
+            updatedPhone, 
+            updatedCourse, 
+            updatedBranch, 
+            updatedPhoto, 
+            email
         ]);
 
-        res.status(200).json({ success: true, message: "Profile updated successfully in database!" });
+        res.status(200).json({ success: true, message: "Profile updated successfully!" });
     } catch (error) {
         console.error("Error updating profile:", error);
-        res.status(500).json({ success: false, message: "Server error while updating profile.", error: error.message });
+        res.status(500).json({ success: false, message: "Server error while updating profile." });
     }
 });
 
