@@ -727,42 +727,50 @@ form.addEventListener("submit", async (e) => {
 });
 
 $("uploadBtn").addEventListener("click", () => $("photoInput").click());
-$("photoInput").addEventListener("change", (e) => {
+$("photoInput").addEventListener("change", async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
     if (file.size > 2 * 1024 * 1024) {
         showToast("Image size should be less than 2MB");
         return;
     }
+
     const reader = new FileReader();
-    reader.onload = async() => {
+    reader.onload = async () => {
         data.photo = reader.result;
-        
         renderAvatar();
 
-        // Turant database mein save karne ke liye:
+        // Sabhi data ke sath photo bhi bhej rahe hain taaki baaki info wipe na ho
         try {
-            await fetch('/api/auth/update-profile', {
+            const response = await fetch('/api/auth/update-profile', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: data.email, photo: data.photo })
+                body: JSON.stringify({
+                    email: data.email,
+                    fullName: data.fullName,
+                    gender: data.gender,
+                    phone: data.phone,
+                    course: data.course,
+                    branch: data.branch,
+                    roll_no: data.roll,
+                    photo: data.photo
+                })
             });
-            showToast("Profile picture saved to database!");
+            const result = await response.json();
+            if (result.success) {
+                showToast("Profile picture saved successfully!");
+            } else {
+                showToast(result.message || "Failed to save photo.");
+            }
         } catch (err) {
             console.error("Error saving photo:", err);
-            showToast("Failed to sync photo with database.");
+            showToast("Network error while saving photo.");
         }
-        
     };
     reader.readAsDataURL(file);
 });
 
-$("removeBtn").addEventListener("click", () => {
-    data.photo = "";
-    saveDataLocally();
-    renderAvatar();
-    showToast("Photo removed");
-});
 
 fetchUserData();
 setEditing(false);
