@@ -297,18 +297,23 @@
     .btn-summary:hover { background: var(--gradient); color: #fff; }
 
     /* ================= RESPONSIVE ================= */
-    @media (max-width: 768px) {
-  .topbar { padding: 12px 16px; gap: 10px; }
-  .topbar h1 { font-size: 18px; }
-  .content { padding: 12px; gap: 16px; }
-  .banner { padding: 20px; border-radius: 16px; gap: 14px; }
-  .banner-text h2 { font-size: 18px; }
-  .content-head { flex-direction: column; align-items: flex-start; gap: 10px; }
-  .subject { padding: 12px 14px; gap: 12px; flex-wrap: wrap; }
-  .ring-wrap { width: 54px; height: 54px; }
-  .ring-label { font-size: 12px; }
-  .subject-name { font-size: 16px; }
-  .btn-summary { width: 100%; text-align: center; margin-top: 4px; padding: 6px 12px; }
+   @media (max-width: 960px) {
+  .search { display: none; }
+}
+
+@media (max-width: 768px) {
+  .sidebar { width: 64px !important; }
+  .sb-logo-text, .sb-label { display: none !important; }
+  .sb-item { justify-content: center !important; padding: 8px 0 !important; width: calc(100% - 16px) !important; margin: 0 8px !important; }
+  .sb-item::before { display: none !important; }
+  .topbar { padding: 12px 16px !important; gap: 12px !important; }
+  .topbar h1 { font-size: 18px !important; }
+  .user-text { display: none !important; }
+  .content { padding: 16px !important; gap: 16px !important; }
+  .banner { padding: 20px !important; flex-direction: column !important; text-align: center !important; }
+  .content-head { flex-direction: column !important; align-items: flex-start !important; gap: 10px !important; }
+  .subject { padding: 14px !important; gap: 14px !important; flex-wrap: wrap !important; }
+  .btn-summary { width: 100% !important; text-align: center !important; }
 }
     
   </style>
