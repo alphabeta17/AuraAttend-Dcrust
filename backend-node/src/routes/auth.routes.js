@@ -160,7 +160,8 @@ router.get('/get-profile',async (req,res)=>{
         gender: user.gender || 'Male',
         phone: user.phone_no || '',
         course: user.course || 'B.Tech',
-        branch: user.section || ''
+        branch: user.section || '',
+        photo:user.profile_pic||''
       }
     });
   }
@@ -173,7 +174,7 @@ router.get('/get-profile',async (req,res)=>{
 
 // Profile Details Update Route
 router.post('/update-profile', async (req, res) => {
-    const { email, fullName ,gender, phone, course, branch, roll_no, university_id, university_portal_password } = req.body;
+    const { email, fullName ,gender, phone, course, branch, roll_no, university_id, university_portal_password, photo } = req.body;
     const portalPassword = university_portal_password || university_id;
 
     if (!email) {
@@ -184,7 +185,7 @@ router.post('/update-profile', async (req, res) => {
         // Database mein email, roll_no, gender, phone_no, course, aur section (branch) update karein
         const query = `
             UPDATE users 
-            SET  full_name=?, email = ?,roll_no = ?, gender = ?, phone_no = ?, course = ?, section = ?, university_portal_password = ? 
+            SET  full_name=?, email = ?,roll_no = ?, gender = ?, phone_no = ?, course = ?, section = ?, university_portal_password = ?, profile_pic=? 
             WHERE email = ?
         `;
         
@@ -197,6 +198,7 @@ router.post('/update-profile', async (req, res) => {
             course || null, 
             branch || null, 
             portalPassword ? parseInt(portalPassword) : null, 
+            photo || null,
             email // Current email lookup ke liye
         ]);
 

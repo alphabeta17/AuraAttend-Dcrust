@@ -726,12 +726,29 @@ $("uploadBtn").addEventListener("click", () => $("photoInput").click());
 $("photoInput").addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+        showToast("Image size should be less than 2MB");
+        return;
+    }
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async() => {
         data.photo = reader.result;
-        saveDataLocally();
+        
         renderAvatar();
-        showToast("Photo updated");
+
+        // Turant database mein save karne ke liye:
+        try {
+            await fetch('/api/auth/update-profile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: data.email, photo: data.photo })
+            });
+            showToast("Profile picture saved to database!");
+        } catch (err) {
+            console.error("Error saving photo:", err);
+            showToast("Failed to sync photo with database.");
+        }
+        
     };
     reader.readAsDataURL(file);
 });

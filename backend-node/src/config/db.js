@@ -36,8 +36,7 @@ const dbPool = pool.promise();
 async function initializeDatabase() {
     try {
         
-        await dbPool.query(`ALTER TABLE users MODIFY COLUMN section VARCHAR(100);`);
-        await dbPool.query(`ALTER TABLE users ADD COLUMN full_name VARCHAR(255);`).catch(() => {});
+        await dbPool.query(`ALTER TABLE users ADD COLUMN profile_pic LONGTEXT;`);
 
         await dbPool.query(createTableQuery);
         console.log('✨ Fresh users table created successfully!');
