@@ -310,6 +310,7 @@
     .lock-note { font-size: 12px; color: var(--muted); margin-top: 4px; }
 
     .form-actions { display: none; justify-content: flex-end; gap: 10px; margin-top: 26px; }
+    
     form.editing .form-actions { display: flex; }
 
     .toast {
@@ -646,15 +647,50 @@
     $("cancelBtn").addEventListener("click", () => { fillForm(); setEditing(false); });
     $("course").addEventListener("change", (e) => { fillBranches(e.target.value); });
 
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      if (!editing) return;
-      fields.forEach((f) => { data[f] = $(f).value.trim(); });
-      saveData();
-      renderSummary();
-      setEditing(false);
-      showToast("Profile saved");
+    form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!editing) return;
+
+    // Form fields se values lena
+    fields.forEach((f) => { 
+        data[f] = $(f).value.trim(); 
     });
+
+    try {
+        // Backend API ko data bhejna
+        const response = await fetch('http://localhost:5000/api/update-profile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: data.email,
+                fullName: data.fullName,
+                gender: data.gender,
+                phone1: data.phone1,
+                phone2: data.phone2,
+                course: data.course,
+                branch: data.branch,
+                roll_no: data.roll,
+                university_id: parseInt(data.university_id) || 0 // INT input support
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            saveData(); // Local storage cache update rakhne ke liye
+            renderSummary();
+            setEditing(false);
+            showToast("Profile saved to database successfully!");
+        } else {
+            showToast(result.message || "Failed to save profile.");
+        }
+    } catch (err) {
+        console.error('Error connecting to backend:', err);
+        showToast("Network error while saving profile!");
+    }
+});
 
     $("uploadBtn").addEventListener("click", () => $("photoInput").click());
     $("photoInput").addEventListener("change", (e) => {

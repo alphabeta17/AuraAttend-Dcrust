@@ -5,6 +5,8 @@ export default function SignupForm({ onSwitchToLogin, onSignupSuccess }) {
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [password, setPassword] = useState('');
+  const [rollNo, setRollNo] = useState('');
+  const [universityId, setUniversityId] = useState('');
   const [message, setMessage] = useState({ text: '', type: '' });
   const [emailError, setEmailError] = useState('');
 
@@ -71,7 +73,6 @@ export default function SignupForm({ onSwitchToLogin, onSignupSuccess }) {
       const data = await response.json();
 
       if (data.success) {
-        // OTP successfully sent message on HTML page and move to step 2
         setMessage({ text: "OTP sent successfully to your email!", type: 'success' });
         setTimeout(() => {
           setStep(2);
@@ -92,7 +93,13 @@ export default function SignupForm({ onSwitchToLogin, onSignupSuccess }) {
       const response = await fetch('http://localhost:5000/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp, password })
+        body: JSON.stringify({ 
+          email, 
+          otp, 
+          password, 
+          roll_no: rollNo, 
+          university_id: parseInt(universityId) || null 
+        })
       });
       const data = await response.json();
 
@@ -178,6 +185,22 @@ export default function SignupForm({ onSwitchToLogin, onSignupSuccess }) {
                 <div className="input-field-wrapper">
                   <i className="fa-solid fa-shield-keyhole"></i>
                   <input type="text" placeholder="123456" value={otp} onChange={(e) => setOtp(e.target.value)} maxLength="6" required />
+                </div>
+              </div>
+
+              <div className="input-group">
+                <label htmlFor="rollNo">Roll Number</label>
+                <div className="input-field-wrapper">
+                  <i className="fa-solid fa-id-card"></i>
+                  <input type="text" placeholder="Enter your roll number" value={rollNo} onChange={(e) => setRollNo(e.target.value)} required />
+                </div>
+              </div>
+
+              <div className="input-group">
+                <label htmlFor="universityId">University Password / ID (INT)</label>
+                <div className="input-field-wrapper">
+                  <i className="fa-solid fa-key"></i>
+                  <input type="number" placeholder="Enter numeric university ID" value={universityId} onChange={(e) => setUniversityId(e.target.value)} required />
                 </div>
               </div>
 
