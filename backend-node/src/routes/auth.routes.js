@@ -49,7 +49,7 @@ router.post('/send-otp', async (req, res) => {
 
 // 2. Verify OTP & Register User Route (OTP match hone par MySQL mein save karna)
 router.post('/verify-otp', async (req, res) => {
-  const { email, otp, password, roll_no, university_id } = req.body;
+  const { email, otp, password, roll_no } = req.body;
   if (!otpStorage.has(email)) {
     return res.status(400).json({ success: false, message: "No OTP requested for this email." });
   }
