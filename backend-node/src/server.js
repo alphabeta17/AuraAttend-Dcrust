@@ -20,14 +20,14 @@ app.use(cors({
 
 app.use(express.json());
 
-// 1. Mount Auth Routes FIRST
+// 1. Apne API routes pehle register karein
 app.use('/api/auth', authRoutes);
 
-// 2. Serve Frontend Built Static Files
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
+// 2. Frontend ke static files serve karein
+app.use(express.static(path.join(__dirname, '../../frontend/dist')));
 
-// 3. Catch-all route for SPA routing (React Router support)
-app.get('/.*/', (req, res) => {
+// 3. SPA Fallback (Catch-all middleware - No path-to-regexp errors!)
+app.use((req, res) => {
     res.sendFile(path.join(__dirname, '../../frontend/dist/index.html'));
 });
 
