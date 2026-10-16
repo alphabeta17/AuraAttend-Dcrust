@@ -558,7 +558,12 @@ window.addEventListener("load", () => {
         document.body.classList.add("loaded");
     }, 400);
 });
-let loggedInEmail=localStorage.getItem("userEmail")||""; // Ya jo bhi variable mein email aa rahi ho
+let loggedInEmail = localStorage.getItem("userEmail") || "";
+
+// Agar desktop par email nahi mili, toh login page par bhej dein taaki session set ho sake
+if (!loggedInEmail) {
+    window.location.href = 'login.html';
+} // Ya jo bhi variable mein email aa rahi ho
 
 let data = {
     fullName: "",
@@ -586,6 +591,7 @@ const fields = ["fullName", "gender", "phone", "phone2", "email", "roll", "cours
 let editing = false;
 
 async function fetchUserData() {
+  if (!loggedInEmail) return;
     try {
         const response = await fetch(`/api/auth/get-profile?email=${encodeURIComponent(loggedInEmail)}`);
         const result = await response.json();
@@ -598,9 +604,7 @@ async function fetchUserData() {
             data.course = result.data.course;
             data.branch = result.data.branch;
             
-            const savedLocal = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-            
-            data.photo = savedLocal.photo || data.photo;
+            data.photo = result.data.photo || localStorage.getItem(STORAGE_KEY + "_photo") || "";
             
             fillForm();
             renderSummary();
