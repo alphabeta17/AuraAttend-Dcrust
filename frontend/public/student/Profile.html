@@ -582,7 +582,7 @@ let editing = false;
 
 async function fetchUserData() {
     try {
-        const response = await fetch(`http://localhost:5000/api/auth/get-profile?email=${encodeURIComponent(loggedInEmail)}`);
+        const response = await fetch(`/api/auth/get-profile?email=${encodeURIComponent(loggedInEmail)}`);
         const result = await response.json();
         if (result.success && result.data) {
             data.fullName=result.data.fullName;
@@ -687,7 +687,7 @@ form.addEventListener("submit", async (e) => {
     });
 
     try {
-        const response = await fetch('http://localhost:5000/api/auth/update-profile', {
+        const response = await fetch('/api/auth/update-profile', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -752,7 +752,7 @@ if (deleteAccountBtn) {
     deleteAccountBtn.addEventListener("click", async () => {
         showToast("Sending deletion OTP to your email...");
         try {
-            const res = await fetch('http://localhost:5000/api/auth/request-delete-otp', {
+            const res = await fetch('/api/auth/request-delete-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: data.email })
@@ -783,7 +783,7 @@ if (confirmDeleteBtn) {
 
         showToast("Verifying and deleting account...");
         try {
-            const delRes = await fetch('http://localhost:5000/api/auth/verify-and-delete', {
+            const delRes = await fetch('/api/auth/verify-and-delete', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: data.email, otp: otpVal })

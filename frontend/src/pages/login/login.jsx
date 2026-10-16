@@ -42,7 +42,7 @@ export default function Login({ onLoginSuccess }) {
 
   const handleCredentialResponse = async (response) => {
     try {
-      const res = await fetch('http://localhost:5000/api/auth/google', {
+      const res = await fetch('/api/auth/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: response.credential })
@@ -64,7 +64,7 @@ export default function Login({ onLoginSuccess }) {
     setMessage({ text: '', type: '' });
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: identifier, password: password })

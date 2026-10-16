@@ -30,7 +30,7 @@ export default function SignupForm({ onSwitchToLogin, onSignupSuccess }) {
   const handleEmailBlur = async () => {
     if (!email || !email.includes('@')) return;
     try {
-      const response = await fetch('http://localhost:5000/api/auth/check-email', {
+      const response = await fetch('/api/auth/check-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -56,7 +56,7 @@ export default function SignupForm({ onSwitchToLogin, onSignupSuccess }) {
     }
 
     try {
-      const checkResponse = await fetch('http://localhost:5000/api/auth/check-email', {
+      const checkResponse = await fetch('/api/auth/check-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -70,7 +70,7 @@ export default function SignupForm({ onSwitchToLogin, onSignupSuccess }) {
         setEmailError("");
       }
 
-      const response = await fetch('http://localhost:5000/api/auth/send-otp', {
+      const response = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -95,7 +95,7 @@ export default function SignupForm({ onSwitchToLogin, onSignupSuccess }) {
     e.preventDefault();
     setMessage({ text: '', type: '' });
     try {
-      const response = await fetch('http://localhost:5000/api/auth/verify-otp', {
+      const response = await fetch('/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
