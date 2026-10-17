@@ -12,13 +12,14 @@ const pool = mysql.createPool({
     ssl: { rejectUnauthorized: false }
 });
 
+
 // Table creation query with profile_pic column added
 const createTableQuery = `
   CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     full_name VARCHAR(255),
     roll_no VARCHAR(50) UNIQUE,
-    university_portal_password INT,
+    university_portal_password VARCHAR(255),
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     course VARCHAR(100),
@@ -39,9 +40,11 @@ async function initializeDatabase() {
     try {
         await dbPool.query(createTableQuery);
         console.log('✨ Fresh users table created successfully!');
+        
     } catch (err) {
         console.error('Database initialization error:', err.message);
     }
+
 }
 
 initializeDatabase();
