@@ -1,33 +1,40 @@
-import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
+// src/services/email.service.js
+export async function sendOtpEmail(toEmail, otp) {
+    const BREVO_API_KEY = process.env.BREVO_API_KEY;
 
-dotenv.config();
-
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
+    if (!BREVO_API_KEY) {
+        throw new Error("BREVO_API_KEY is missing in environment variables.");
     }
-});
 
-export const sendOtpEmail = async (toEmail, otpCode) => {
-    const mailOptions = {
-        from: '"AuraAttend Security" <no-reply@auraattend.com>',
-        to: toEmail,
-        subject: 'Your AuraAttend Verification Code',
-        html: `
-            <div style="font-family: Arial, sans-serif; padding: 20px; background: #f4f5f8; border-radius: 10px;">
-                <h2 style="color: #6d28d9;">AuraAttend Verification</h2>
-                <p>Hello,</p>
-                <p>Your one-time password (OTP) for account verification is:</p>
-                <div style="font-size: 24px; font-weight: bold; color: #7c3aed; background: #fff; padding: 10px 20px; display: inline-block; border-radius: 6px; letter-spacing: 4px;">
-                    ${otpCode}
-                </div>
-                <p style="margin-top: 20px; font-size: 12px; color: #6b7280;">This code will expire in 5 minutes. If you didn't request this, please ignore this email.</p>
-            </div>
-        `
-    };
+    try {
+        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'api-key': BREVO_API_KEY
+            },
+            body: JSON.stringify({
+                sender: { 
+                    email: process.env.EMAIL_USER, // Aapki verified email jo Brevo par hai
+                    name: "AuraAttend" 
+                },
+                to: [{ email: toEmail }],
+                subject: "Your Verification OTP Code - AuraAttend",
+                textContent: `Hello,\n\nYour 6-digit OTP code for AuraAttend is: ${otp}\n\nThis code is valid for 5 minutes. Do not share it with anyone.`
+            })
+        });
 
-    await transporter.sendMail(mailOptions);
-};
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Failed to send email via Brevo API");
+        }
+
+        console.log(`[Brevo API] OTP email successfully sent to ${toEmail}`);
+        return true;
+    } catch (error) {
+        console.error("Brevo API Error:", error);
+        throw error;
+    }
+}
