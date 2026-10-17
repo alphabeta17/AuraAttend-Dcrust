@@ -117,27 +117,34 @@ router.post('/google', async (req, res) => {
 });
 
 // 4. Database Login Route (User verify karne ke liye)
-router.post('/login', async (req, res) => {
-    const { email, password } = req.body;
-    if (!email || !password) {
-        return res.status(400).json({ success: false, message: "Email and password are required" });
-    }
+router.post('/google', async (req, res) => {
+    const { token } = req.body;
     try {
-        const [users] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
-        if (users.length === 0) {
-            return res.status(400).json({ success: false, message: "Invalid email or password" });
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: "166248464188-kh51ko7innf6jk9ojgalgtk61352uqcb.apps.googleusercontent.com",
+        });
+        const payload = ticket.getPayload();
+        const email = payload.email;
+        const name = payload.name;
+
+        // Check karein ki user database mein hai ya nahi
+        const [existingUsers] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+        
+        if (existingUsers.length === 0) {
+            // Agar naya user hai toh database mein insert kar dein
+            await db.query(
+                'INSERT INTO users (email, full_name) VALUES (?, ?)',
+                [email, name]
+            );
         }
-        const user = users[0];
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ success: false, message: "Invalid email or password" });
-        }
-        res.status(200).json({ success: true, message: "Login successful!", email: user.email });
+
+        res.status(200).json({ success: true, email: email, name: name });
     } catch (error) {
-        console.error("Login error:", error);
-        res.status(500).json({ success: false, message: "Server error during login" });
+        res.status(400).json({ success: false, message: "Invalid Google token", error: error.message });
     }
 });
+
 
 // get profile details
 router.get('/get-profile',async (req,res)=>{
