@@ -146,7 +146,7 @@ router.get('/get-profile',async (req,res)=>{
     return res.status(400).json({success: false, message:"Email query parameter is required."});
   }
   try {
-    const[users]=await db.query('Select email, roll_no,full_name, gender, phone_no, course, section FROM users where email=?', [email]);
+    const[users]=await db.query('Select email, roll_no,full_name, gender, phone_no, course, section, profile_pic FROM users where email=?', [email]);
     if (users.length===0){
       return res.status(404).json({success:false, message:"User not found!" });
     }
