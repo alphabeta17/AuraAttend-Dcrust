@@ -227,6 +227,14 @@
       flex-wrap: wrap;
     }
     .content-head h2 { margin: 0; font-size: 22px; font-weight: 700; }
+    @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.rotating {
+    animation: spin 0.8s linear infinite;
+}
 
     .chips { display: flex; gap: 10px; }
     .chip {
@@ -407,7 +415,7 @@
           </div>
           <div class="user-text">
             <p class="user-name">Student Name</p>
-            <p class="user-id">ID: 50000373</p>
+            <p class="p-roll_no" id="sRoll">ID: 50000373</p>
           </div>
         </div>
       </header>
@@ -426,13 +434,30 @@
         </div>
 
         <!-- Section Header -->
-        <div class="content-head">
-          <h2>Subject Overview</h2>
-          <div class="chips">
+<div class="content-head">
+    <h2>Subject Overview</h2>
+    
+    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <!-- Sync / Refresh Button -->
+        <button class="btn-refresh" type="button" onclick="refreshAttendance()" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 12px; background: #fff; border: 1px solid var(--border); box-shadow: var(--shadow-chip); font-family: inherit; font-size: 14px; font-weight: 600; color: var(--violet-700); cursor: pointer; transition: background 0.2s;">
+    <!-- Yahan id="syncIcon" add kiya hai -->
+    <svg id="syncIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 2v6h-6"></path>
+        <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+        <path d="M3 22v-6h6"></path>
+        <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+    </svg>
+    Sync Attendance
+</button>
+
+        <!-- Existing Chips -->
+        <div class="chips">
             <div class="chip"><span>Sem</span><strong>3</strong></div>
             <div class="chip"><span>Branch</span><strong>CSE</strong></div>
-          </div>
         </div>
+    </div>
+</div>
+        
 
         <!-- Subject List -->
         <ul class="subjects">
@@ -446,90 +471,110 @@
 <ul class="subjects"></ul>
 
 <script>
-// Jaise hi page load hota hai, API ko call karne wala function chala do[cite: 10]
+// 1. Page load hone par cache check karein
 window.addEventListener("load", () => {
+    const cachedData = localStorage.getItem('latestAttendanceData');
+    if (cachedData) {
+        try {
+            const parsedData = JSON.parse(cachedData);
+            renderAttendanceList(parsedData);
+            setTimeout(() => { document.body.classList.add("loaded"); }, 200);
+            console.log("Loaded attendance from local cache.");
+            return; 
+        } catch (e) {
+            console.error("Error parsing cached data:", e);
+        }
+    }
     fetchAttendanceData();
 });
 
-// Backend se real attendance mangwane ka function
-async function fetchAttendanceData() {
-    // Browser ke local storage se user ki email nikal rahe hain
-    const loggedInEmail = localStorage.getItem("userEmail");
+// 2. Sync / Refresh button click hone par chalne wala function
+function refreshAttendance() {
+    // Purana cached data hata dein
+    localStorage.removeItem('latestAttendanceData'); 
     
-    // Agar email nahi mili (user logged in nahi hai), toh seedha login page par bhej do
+    // Button ke icon ko rotating class de dein taaki woh ghumne lage
+    const syncIcon = document.getElementById('syncIcon');
+    if (syncIcon) {
+        syncIcon.classList.add('rotating');
+    }
+    
+    // Server se fresh attendance data fetch karein
+    fetchAttendanceData(); 
+}
+
+// 3. Backend se real attendance mangwane wala single function
+async function fetchAttendanceData() {
+    const loggedInEmail = localStorage.getItem("userEmail");
     if (!loggedInEmail) {
         window.location.href = 'login.html';
         return;
     }
 
+    const syncIcon = document.getElementById('syncIcon');
+
     try {
-        // Apne backend ke us route par POST request bhej rahe hain jo abhi humne banaya tha
         const response = await fetch('/api/auth/fetch-university-attendance', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: loggedInEmail }) // Backend ko email bhej di
+            body: JSON.stringify({ email: loggedInEmail })
         });
         
-        // Backend se aane wale jawab ko JSON mein badal liya
         const result = await response.json();
 
-        // Agar result success hai (data mil gaya)
         if (result.success) {
-            // NAYA: Poore data ko local memory mein save karein taaki naya page isey padh sake
+            // Local storage mein data save karein
             localStorage.setItem('latestAttendanceData', JSON.stringify(result.data));
-            // Screen par subjects draw karne wale function ko data bhej diya
+            // Screen par render karein
             renderAttendanceList(result.data);
-            
-            // Data screen par lagne ke baad 0.4 second mein Noodle Loading animation hata diya[cite: 10]
             setTimeout(() => { document.body.classList.add("loaded"); }, 400);
         } else {
-            // Agar backend ne fail message bheja (galat password ya server down)
             alert(result.message || "Failed to load attendance.");
-            document.body.classList.add("loaded"); // Loader hatha diya
+            document.body.classList.add("loaded");
         }
     } catch (error) {
-        // Agar internet band ho ya network problem aaye
         console.error("Error fetching attendance:", error);
         alert("Network error while syncing attendance.");
         document.body.classList.add("loaded");
+    } finally {
+        // Data aate hi ya error aate hi icon ki rotation rok dein
+        if (syncIcon) {
+            syncIcon.classList.remove('rotating');
+        }
     }
 }
 
-// Backend se aaye data ko aapke sundar UI design mein lagane wala function
-// 1. Apne subject codes aur unke friendly names ki list yahan define karein
+// 4. Subject codes aur unke friendly names ki mapping
 const subjectMapping = {
     "ESECE201D": "Digital System Design",
     "PCCSE201D": "Data Structures",
     "PCCSE203D": "OOPs using JAVA",
     "PCCSE205D": "Database Management",
     "PCCSE207D": "Computer Architecture",
-    "COI ": "Constitution of India", // 'COI ' ke aage HTML mein space tha
-    "COI": "Constitution of India",
-    
+    "COI ": "Constitution of India",
+    "COI": "Constitution of India"
 };
 
-// 2. Updated Render Function
+// 5. UI mein subjects draw karne wala function
 function renderAttendanceList(attendanceArray) {
     const subjectsContainer = document.querySelector('.subjects');
     subjectsContainer.innerHTML = ''; 
 
-    if(attendanceArray.length === 0) {
+    if (attendanceArray.length === 0) {
         subjectsContainer.innerHTML = '<p style="text-align:center; padding:20px;">No classes found.</p>';
         return;
     }
 
     attendanceArray.forEach(item => {
         const percValue = parseFloat(item.percentage) || 0;
-        
         let formattedSummary = item.summary;
         const totalMatch = item.summary.match(/Total Classes Taken: (\d+)/);
         const presentMatch = item.summary.match(/Present Count: (\d+)/);
         
-        if(totalMatch && presentMatch) {
+        if (totalMatch && presentMatch) {
             formattedSummary = `${presentMatch[1]} OUT OF ${totalMatch[1]}`;
         }
 
-        // Mapping se friendly naam nikalein. Agar list mein nahi hai, toh original code dikhayein.
         const cleanSubjectCode = item.subject.trim(); 
         const friendlyName = subjectMapping[cleanSubjectCode] || item.subject;
         const encodedSubject = encodeURIComponent(item.subject);
@@ -542,7 +587,6 @@ function renderAttendanceList(attendanceArray) {
                 <div class="ring-label">${item.percentage}%</div>
             </div>
             <div class="subject-info">
-                <!-- Original code ki jagah friendlyName display kar rahe hain -->
                 <div class="subject-name">${friendlyName}</div>
                 <div class="subject-count">${formattedSummary}</div>
             </div>
