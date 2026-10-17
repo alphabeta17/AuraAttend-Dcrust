@@ -320,94 +320,100 @@ router.post('/fetch-university-attendance', async (req, res) => {
         const rollNo = users[0].roll_no;
         const portalPassword = users[0].university_portal_password;
 
-        // STEP 1: Initial page fetch
-        const initialRes = await fetch('https://dcrustm.samarth.edu.in/index.php/site/login');
-        const initialHtml = await initialRes.text(); 
-        
-        // NAYA TAREEQA (Node 18+): getSetCookie() use karke cookies nikalna
-        const rawCookies = initialRes.headers.getSetCookie();
-        const initialCookie = rawCookies.length > 0 ? rawCookies.map(c => c.split(';')[0]).join('; ') : '';
-        
-        const $init = cheerio.load(initialHtml);
-        const csrfToken = $init('meta[name="csrf-token"]').attr('content');
+        // Common browser headers taaki university firewall block na kare
+const browserHeaders = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.5'
+};
 
-        // STEP 2: Login form submit
-        const params = new URLSearchParams();
-        params.append('_csrf', csrfToken); 
-        params.append('LoginForm[username]', rollNo); 
-        params.append('LoginForm[password]', portalPassword); 
+// STEP 1: Initial page fetch
+const initialRes = await fetch('https://dcrustm.samarth.edu.in/index.php/site/login', {
+    headers: browserHeaders
+});
+const initialHtml = await initialRes.text();
 
-        const loginRes = await fetch('https://dcrustm.samarth.edu.in/index.php/site/login', {
-            method: 'POST',
-            body: params,
-            redirect: 'manual', 
-            headers: { 
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Cookie': initialCookie
-            }
-        });
+const rawCookies = initialRes.headers.getSetCookie();
+const initialCookie = rawCookies.length > 0 ? rawCookies.map(c => c.split(';')[0]).join('; ') : '';
+const $init = cheerio.load(initialHtml);
+const csrfToken = $init('meta[name="csrf-token"]').attr('content');
 
-        // NAYA TAREEQA: VIP session cookie nikalna
-        const loginRawCookies = loginRes.headers.getSetCookie();
-        const sessionCookie = loginRawCookies.length > 0 
-            ? loginRawCookies.map(c => c.split(';')[0]).join('; ') 
-            : initialCookie;
+// STEP 2: Login form submit
+const params = new URLSearchParams();
+params.append('_csrf', csrfToken);
+params.append('LoginForm[username]', rollNo);
+params.append('LoginForm[password]', portalPassword);
 
-        // STEP 3: Main dashboard fetch
-        const mainPageRes = await fetch('https://dcrustm.samarth.edu.in/index.php/student-attendance/attendance/index', {
-            headers: { 'Cookie': sessionCookie }
-        });
-        const mainHtml = await mainPageRes.text();
-        const $main = cheerio.load(mainHtml);
-        
-        const classLinks = [];
-        $main('table.table-bordered tbody tr').each((i, el) => {
-            const subject = $main(el).find('td:nth-child(2)').text().trim();
-            const viewLink = $main(el).find('td:nth-child(6) a').attr('href');
-            if (subject && viewLink) {
-                classLinks.push({ subject, url: `https://dcrustm.samarth.edu.in${viewLink}` });
-            }
-        });
+const loginRes = await fetch('https://dcrustm.samarth.edu.in/index.php/site/login', {
+    method: 'POST',
+    body: params,
+    redirect: 'manual',
+    headers: {
+        ...browserHeaders,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Cookie': initialCookie
+    }
+});
 
-        // STEP 4: Subjects percentage fetch
-        const attendanceData = await Promise.all(classLinks.map(async (cls) => {
-            const detailRes = await fetch(cls.url, { headers: { 'Cookie': sessionCookie } });
-            const detailHtml = await detailRes.text();
-            const $detail = cheerio.load(detailHtml);
-            
-            let percentage = '0';
-            let summary = 'Classes Data Unavailable';
-            const records = [];
-            
-            $detail('table#w0 tr').each((i, el) => {
-                const header = $detail(el).find('th').text().trim();
-                const value = $detail(el).find('td').text().trim();
-                if (header === 'Present Percentage') {
-                    percentage = value.replace('%', '').trim();
-                } else if (header === 'Attendance Summary') {
-                    summary = value;
-                }
-            });
-            // 2. NAYA AUR SAFE TAREEQA: Day-wise history nikalna
-            $detail('.grid-view table tr').each((i, el) => {
-                // Table header (th) wali row skip karein
-                if ($detail(el).find('th').length > 0) return;
-                
-                // "No results found" wali row skip karein
-                if ($detail(el).find('.empty').length > 0) return;
+const loginRawCookies = loginRes.headers.getSetCookie();
+const sessionCookie = loginRawCookies.length > 0 ? loginRawCookies.map(c => c.split(';')[0]).join('; ') : initialCookie;
 
-                // eq(index) use kiya hai jo 0 se shuru hota hai (1=Date, 2=Time, 3=Status)
-                const date = $detail(el).find('td').eq(1).text().trim();
-                const time = $detail(el).find('td').eq(2).text().trim();
-                const status = $detail(el).find('td').eq(3).text().trim();
+// STEP 3: Main dashboard fetch
+const mainPageRes = await fetch('https://dcrustm.samarth.edu.in/index.php/student-attendance/attendance/index', {
+    headers: {
+        ...browserHeaders,
+        'Cookie': sessionCookie
+    }
+});
+const mainHtml = await mainPageRes.text();
+const $main = cheerio.load(mainHtml);
+const classLinks = [];
 
-                if (date) {
-                    records.push({ date, time, status });
-                }
-            });
-            return { subject: cls.subject, percentage, summary, records };
-        }));
+$main('table.table-bordered tbody tr').each((i, el) => {
+    const subject = $main(el).find('td:nth-child(2)').text().trim();
+    const viewLink = $main(el).find('td:nth-child(6) a').attr('href');
+    if (subject && viewLink) {
+        classLinks.push({ subject, url: `https://dcrustm.samarth.edu.in${viewLink}` });
+    }
+});
 
+// STEP 4: Subjects percentage fetch
+const attendanceData = await Promise.all(classLinks.map(async (cls) => {
+    const detailRes = await fetch(cls.url, { 
+        headers: { 
+            ...browserHeaders,
+            'Cookie': sessionCookie 
+        } 
+    });
+    const detailHtml = await detailRes.text();
+    const $detail = cheerio.load(detailHtml);
+    let percentage = '0';
+    let summary = 'Classes Data Unavailable';
+    const records = [];
+
+    $detail('table#w0 tr').each((i, el) => {
+        const header = $detail(el).find('th').text().trim();
+        const value = $detail(el).find('td').text().trim();
+        if (header === 'Present Percentage') {
+            percentage = value.replace('%', '').trim();
+        } else if (header === 'Attendance Summary') {
+            summary = value;
+        }
+    });
+
+    $detail('.grid-view table tr').each((i, el) => {
+        if ($detail(el).find('th').length > 0) return;
+        if ($detail(el).find('.empty').length > 0) return;
+        const date = $detail(el).find('td').eq(1).text().trim();
+        const time = $detail(el).find('td').eq(2).text().trim();
+        const status = $detail(el).find('td').eq(3).text().trim();
+        if (date) {
+            records.push({ date, time, status });
+        }
+    });
+
+    return { subject: cls.subject, percentage, summary, records };
+}));
         res.status(200).json({ success: true, data: attendanceData });
 
     } catch (error) {
