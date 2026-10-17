@@ -502,7 +502,7 @@
                     <div class="form-grid">
                         <div class="field">
                             <label for="roll">Roll number</label>
-                            <input type="text" id="roll" name="roll" class="locked" readonly/>
+                            <input type="text" id="roll_no" name="roll_no" class="locked" readonly/>
                             <div class="lock-note">Roll number can't be changed.</div>
                         </div>
                         <div class="field">
@@ -571,7 +571,7 @@ let data = {
     phone: "",
     phone2: "",
     email: loggedInEmail,
-    roll: "",
+    roll_no: "",
     course: "B.Tech",
     branch: "",
     photo: ""
@@ -587,7 +587,7 @@ const CAT_SVG = `<svg viewBox="0 0 112 112" role="img" aria-label="Default cat a
 
 const $ = (id) => document.getElementById(id);
 const form = $("profileForm");
-const fields = ["fullName", "gender", "phone", "phone2", "email", "roll", "course", "branch"];
+const fields = ["fullName", "gender", "phone", "phone2", "email", "roll_no", "course", "branch"];
 let editing = false;
 
 async function fetchUserData() {
@@ -598,7 +598,8 @@ async function fetchUserData() {
         if (result.success && result.data) {
             data.fullName=result.data.fullName;
             data.email = result.data.email;
-            data.roll = result.data.roll;
+            // Result se data lakar apne local data object mein daalna
+            data.roll_no = result.data.roll || result.data.roll_no || "";
             data.gender = result.data.gender;
             data.phone = result.data.phone;
             data.course = result.data.course;
@@ -654,10 +655,10 @@ function renderAvatar() {
 
 function renderSummary() {
     $("sName").textContent = data.fullName || "Student Name";
-    $("sRoll").textContent = "Roll no. " + (data.roll || "N/A");
+    $("sRoll").textContent = "Roll no. " + (data.roll_no || "N/A");
     $("sCourse").textContent = data.course || "B.Tech";
     $("hName").textContent = data.fullName || "Student Name";
-    $("hId").textContent = "ID: " + (data.roll || "N/A");
+    $("hId").textContent = "ID: " + (data.roll_no || "N/A");
 }
 
 function fillForm() {
@@ -707,7 +708,7 @@ form.addEventListener("submit", async (e) => {
                 phone2:data.phone2,
                 course: data.course,
                 branch: data.branch,
-                roll_no: data.roll
+                roll_no: data.roll_no
             })
         });
         const result = await response.json();
@@ -831,6 +832,45 @@ if (confirmDeleteBtn) {
         } catch (err) {
             console.error("Error deleting user:", err);
             showToast("Network error during account deletion.");
+        }
+    });
+}
+// --- LOGOUT LOGIC ---
+const logoutBtn = document.getElementById("logout");
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+        localStorage.removeItem("userEmail"); // Ya localStorage.clear() bhi kar sakte hain
+        window.location.href = "/login.html"; // Aapke project ka login page URL
+    });
+}
+// --- REMOVE PHOTO LOGIC ---
+const removeBtn = $("removeBtn");
+if (removeBtn) {
+    removeBtn.addEventListener("click", async () => {
+        if (!data.photo) {
+            showToast("No photo to remove.");
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/auth/remove-photo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: data.email })
+            });
+            const result = await response.json();
+            
+            if (result.success) {
+                data.photo = ""; // Local object se photo hata di
+                renderAvatar(); // Screen par wapas Cat_SVG le aaye
+                saveDataLocally();
+                showToast("Photo removed from database!");
+            } else {
+                showToast(result.message || "Failed to remove photo.");
+            }
+        } catch (err) {
+            console.error("Error removing photo:", err);
+            showToast("Network error while removing photo.");
         }
     });
 }

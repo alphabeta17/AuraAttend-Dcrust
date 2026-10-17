@@ -36,8 +36,6 @@ const dbPool = pool.promise();
 async function initializeDatabase() {
     try {
         
-        await dbPool.query(`ALTER TABLE users ADD COLUMN profile_pic LONGTEXT;`);
-
         await dbPool.query(createTableQuery);
         console.log('✨ Fresh users table created successfully!');
 

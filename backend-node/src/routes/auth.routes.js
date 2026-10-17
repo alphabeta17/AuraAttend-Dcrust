@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs'; // Password ko secure hash mein convert aur compa
 import { sendOtpEmail } from '../services/email.service.js'; // Nodemailer service email bhejne ke liye
 import { OAuth2Client } from 'google-auth-library'; // Google token verify karne ke liye
 import db from '../config/db.js'; // MySQL database connection pool import kiya
+import * as cheerio from 'cheerio';
 
 
 const router = express.Router(); // Router instance banaya
@@ -101,22 +102,48 @@ router.post('/verify-otp', async (req, res) => {
     }
 });
 
-// 3. Google Login Route
-router.post('/google', async (req, res) => {
-    const { token } = req.body;
+
+// 4. Database Login Route (User verify karne ke liye)
+router.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ success: false, message: "Email and password are required." });
+    }
+
     try {
-        const ticket = await client.verifyIdToken({
-            idToken: token,
-            audience: "166248464188-kh51ko7innf6jk9ojgalgtk61352uqcb.apps.googleusercontent.com",
-        });
-        const payload = ticket.getPayload();
-        res.status(200).json({ success: true, email: payload.email, name: payload.name });
+        // Database se user nikalna
+        const [users] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+        
+        // Agar email exist nahi karti
+        if (users.length === 0) {
+            return res.status(400).json({ success: false, message: "Account not found. Please sign up." });
+        }
+
+        const user = users[0];
+
+        // Agar user Google se aaya tha aur uska password set nahi hai
+        if (!user.password) {
+            return res.status(400).json({ success: false, message: "Please use Google Sign-In for this account." });
+        }
+
+        // Database ke hashed password ko match karna
+        const isMatch = await bcrypt.compare(password, user.password);
+        
+        if (!isMatch) {
+            return res.status(400).json({ success: false, message: "Incorrect password." });
+        }
+
+        // Login successful hone par
+        res.status(200).json({ success: true, email: user.email, name: user.full_name });
+
     } catch (error) {
-        res.status(400).json({ success: false, message: "Invalid Google token", error: error.message });
+        console.error("Error during manual login:", error);
+        res.status(500).json({ success: false, message: "Server error during login." });
     }
 });
 
-// 4. Database Login Route (User verify karne ke liye)
+// 3. Google Login Route
 router.post('/google', async (req, res) => {
     const { token } = req.body;
     try {
@@ -274,4 +301,133 @@ router.post('/verify-and-delete', async (req, res) => {
     }
 });
 
+// ==========================================
+// 5. FETCH UNIVERSITY ATTENDANCE ROUTE
+// ==========================================
+router.post('/fetch-university-attendance', async (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ success: false, message: "Email is required" });
+
+    try {
+        const [users] = await db.query('SELECT roll_no, university_portal_password FROM users WHERE email = ?', [email]);
+        
+        if (users.length === 0 || !users[0].university_portal_password) {
+            return res.status(400).json({ success: false, message: "University credentials not found in your profile." });
+        }
+        
+        const rollNo = users[0].roll_no;
+        const portalPassword = users[0].university_portal_password;
+
+        // STEP 1: Initial page fetch
+        const initialRes = await fetch('https://dcrustm.samarth.edu.in/index.php/site/login');
+        const initialHtml = await initialRes.text(); 
+        
+        // NAYA TAREEQA (Node 18+): getSetCookie() use karke cookies nikalna
+        const rawCookies = initialRes.headers.getSetCookie();
+        const initialCookie = rawCookies.length > 0 ? rawCookies.map(c => c.split(';')[0]).join('; ') : '';
+        
+        const $init = cheerio.load(initialHtml);
+        const csrfToken = $init('meta[name="csrf-token"]').attr('content');
+
+        // STEP 2: Login form submit
+        const params = new URLSearchParams();
+        params.append('_csrf', csrfToken); 
+        params.append('LoginForm[username]', rollNo); 
+        params.append('LoginForm[password]', portalPassword); 
+
+        const loginRes = await fetch('https://dcrustm.samarth.edu.in/index.php/site/login', {
+            method: 'POST',
+            body: params,
+            redirect: 'manual', 
+            headers: { 
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Cookie': initialCookie
+            }
+        });
+
+        // NAYA TAREEQA: VIP session cookie nikalna
+        const loginRawCookies = loginRes.headers.getSetCookie();
+        const sessionCookie = loginRawCookies.length > 0 
+            ? loginRawCookies.map(c => c.split(';')[0]).join('; ') 
+            : initialCookie;
+
+        // STEP 3: Main dashboard fetch
+        const mainPageRes = await fetch('https://dcrustm.samarth.edu.in/index.php/student-attendance/attendance/index', {
+            headers: { 'Cookie': sessionCookie }
+        });
+        const mainHtml = await mainPageRes.text();
+        const $main = cheerio.load(mainHtml);
+        
+        const classLinks = [];
+        $main('table.table-bordered tbody tr').each((i, el) => {
+            const subject = $main(el).find('td:nth-child(2)').text().trim();
+            const viewLink = $main(el).find('td:nth-child(6) a').attr('href');
+            if (subject && viewLink) {
+                classLinks.push({ subject, url: `https://dcrustm.samarth.edu.in${viewLink}` });
+            }
+        });
+
+        // STEP 4: Subjects percentage fetch
+        const attendanceData = await Promise.all(classLinks.map(async (cls) => {
+            const detailRes = await fetch(cls.url, { headers: { 'Cookie': sessionCookie } });
+            const detailHtml = await detailRes.text();
+            const $detail = cheerio.load(detailHtml);
+            
+            let percentage = '0';
+            let summary = 'Classes Data Unavailable';
+            const records = [];
+            
+            $detail('table#w0 tr').each((i, el) => {
+                const header = $detail(el).find('th').text().trim();
+                const value = $detail(el).find('td').text().trim();
+                if (header === 'Present Percentage') {
+                    percentage = value.replace('%', '').trim();
+                } else if (header === 'Attendance Summary') {
+                    summary = value;
+                }
+            });
+            // 2. NAYA AUR SAFE TAREEQA: Day-wise history nikalna
+            $detail('.grid-view table tr').each((i, el) => {
+                // Table header (th) wali row skip karein
+                if ($detail(el).find('th').length > 0) return;
+                
+                // "No results found" wali row skip karein
+                if ($detail(el).find('.empty').length > 0) return;
+
+                // eq(index) use kiya hai jo 0 se shuru hota hai (1=Date, 2=Time, 3=Status)
+                const date = $detail(el).find('td').eq(1).text().trim();
+                const time = $detail(el).find('td').eq(2).text().trim();
+                const status = $detail(el).find('td').eq(3).text().trim();
+
+                if (date) {
+                    records.push({ date, time, status });
+                }
+            });
+            return { subject: cls.subject, percentage, summary, records };
+        }));
+
+        res.status(200).json({ success: true, data: attendanceData });
+
+    } catch (error) {
+        console.error("Scraping Error:", error);
+        res.status(500).json({ success: false, message: "Failed to sync with university servers." });
+    }
+});
+// ==========================================
+// REMOVE PHOTO ROUTE
+// ==========================================
+router.post('/remove-photo', async (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+        return res.status(400).json({ success: false, message: "Email is required." });
+    }
+    try {
+        // profile_pic column ko khali (empty string ya null) kar diya
+        await db.query('UPDATE users SET profile_pic = ? WHERE email = ?', ['', email]);
+        res.status(200).json({ success: true, message: "Profile photo removed successfully." });
+    } catch (error) {
+        console.error("Error removing photo:", error);
+        res.status(500).json({ success: false, message: "Server error while removing photo." });
+    }
+});
 export default router;

@@ -443,47 +443,121 @@
 
         <!-- Subject List -->
         <ul class="subjects">
-          <li class="subject">
-            <div class="ring-wrap"><div class="ring" style="--p: 45"></div><div class="ring-label">45%</div></div>
-            <div class="subject-info"><div class="subject-name">DSD</div><div class="subject-count">56 OUT OF 70</div></div>
-            <button class="btn-summary" type="button">Summary</button>
-          </li>
 
-          <li class="subject">
-            <div class="ring-wrap"><div class="ring" style="--p: 0"></div><div class="ring-label">--%</div></div>
-            <div class="subject-info"><div class="subject-name">Data structures</div><div class="subject-count">-- OUT OF --</div></div>
-            <button class="btn-summary" type="button">Summary</button>
-          </li>
-
-          <li class="subject">
-            <div class="ring-wrap"><div class="ring" style="--p: 80"></div><div class="ring-label">80%</div></div>
-            <div class="subject-info"><div class="subject-name">OOPs</div><div class="subject-count">80 OUT OF 90</div></div>
-            <button class="btn-summary" type="button">Summary</button>
-          </li>
-
-          <li class="subject">
-            <div class="ring-wrap"><div class="ring" style="--p: 57"></div><div class="ring-label">57%</div></div>
-            <div class="subject-info"><div class="subject-name">CAO</div><div class="subject-count">46 OUT OF 50</div></div>
-            <button class="btn-summary" type="button">Summary</button>
-          </li>
-
-          <li class="subject">
-            <div class="ring-wrap"><div class="ring" style="--p: 90"></div><div class="ring-label">90%</div></div>
-            <div class="subject-info"><div class="subject-name">COI</div><div class="subject-count">23 OUT OF 90</div></div>
-            <button class="btn-summary" type="button">Summary</button>
-          </li>
         </ul>
 
       </main>
     </div>
   </div>
-  <script>
-    window.addEventListener("load", () => {
-      setTimeout(() => {
-        document.body.classList.add("loaded");
-      }, 400);
-    });
+  <!-- HTML list jahan attendance design card aayenge (Ise page par dhoondh kar khali kar dein) -->
+<ul class="subjects"></ul>
 
-  </script>
+<script>
+// Jaise hi page load hota hai, API ko call karne wala function chala do[cite: 10]
+window.addEventListener("load", () => {
+    fetchAttendanceData();
+});
+
+// Backend se real attendance mangwane ka function
+async function fetchAttendanceData() {
+    // Browser ke local storage se user ki email nikal rahe hain
+    const loggedInEmail = localStorage.getItem("userEmail");
+    
+    // Agar email nahi mili (user logged in nahi hai), toh seedha login page par bhej do
+    if (!loggedInEmail) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    try {
+        // Apne backend ke us route par POST request bhej rahe hain jo abhi humne banaya tha
+        const response = await fetch('/api/auth/fetch-university-attendance', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: loggedInEmail }) // Backend ko email bhej di
+        });
+        
+        // Backend se aane wale jawab ko JSON mein badal liya
+        const result = await response.json();
+
+        // Agar result success hai (data mil gaya)
+        if (result.success) {
+            // NAYA: Poore data ko local memory mein save karein taaki naya page isey padh sake
+            localStorage.setItem('latestAttendanceData', JSON.stringify(result.data));
+            // Screen par subjects draw karne wale function ko data bhej diya
+            renderAttendanceList(result.data);
+            
+            // Data screen par lagne ke baad 0.4 second mein Noodle Loading animation hata diya[cite: 10]
+            setTimeout(() => { document.body.classList.add("loaded"); }, 400);
+        } else {
+            // Agar backend ne fail message bheja (galat password ya server down)
+            alert(result.message || "Failed to load attendance.");
+            document.body.classList.add("loaded"); // Loader hatha diya
+        }
+    } catch (error) {
+        // Agar internet band ho ya network problem aaye
+        console.error("Error fetching attendance:", error);
+        alert("Network error while syncing attendance.");
+        document.body.classList.add("loaded");
+    }
+}
+
+// Backend se aaye data ko aapke sundar UI design mein lagane wala function
+// 1. Apne subject codes aur unke friendly names ki list yahan define karein
+const subjectMapping = {
+    "ESECE201D": "Digital System Design",
+    "PCCSE201D": "Data Structures",
+    "PCCSE203D": "OOPs using JAVA",
+    "PCCSE205D": "Database Management",
+    "PCCSE207D": "Computer Architecture",
+    "COI ": "Constitution of India", // 'COI ' ke aage HTML mein space tha
+    "COI": "Constitution of India",
+    
+};
+
+// 2. Updated Render Function
+function renderAttendanceList(attendanceArray) {
+    const subjectsContainer = document.querySelector('.subjects');
+    subjectsContainer.innerHTML = ''; 
+
+    if(attendanceArray.length === 0) {
+        subjectsContainer.innerHTML = '<p style="text-align:center; padding:20px;">No classes found.</p>';
+        return;
+    }
+
+    attendanceArray.forEach(item => {
+        const percValue = parseFloat(item.percentage) || 0;
+        
+        let formattedSummary = item.summary;
+        const totalMatch = item.summary.match(/Total Classes Taken: (\d+)/);
+        const presentMatch = item.summary.match(/Present Count: (\d+)/);
+        
+        if(totalMatch && presentMatch) {
+            formattedSummary = `${presentMatch[1]} OUT OF ${totalMatch[1]}`;
+        }
+
+        // Mapping se friendly naam nikalein. Agar list mein nahi hai, toh original code dikhayein.
+        const cleanSubjectCode = item.subject.trim(); 
+        const friendlyName = subjectMapping[cleanSubjectCode] || item.subject;
+        const encodedSubject = encodeURIComponent(item.subject);
+
+        const li = document.createElement('li');
+        li.className = 'subject';
+        li.innerHTML = `
+            <div class="ring-wrap">
+                <div class="ring" style="--p: ${percValue}"></div>
+                <div class="ring-label">${item.percentage}%</div>
+            </div>
+            <div class="subject-info">
+                <!-- Original code ki jagah friendlyName display kar rahe hain -->
+                <div class="subject-name">${friendlyName}</div>
+                <div class="subject-count">${formattedSummary}</div>
+            </div>
+            <button class="btn-summary" type="button" onclick="window.location.href='Summary.html?subject=${encodedSubject}'">Summary</button>
+        `;
+        subjectsContainer.appendChild(li);
+    });
+}
+</script>
 </body>
 </html>

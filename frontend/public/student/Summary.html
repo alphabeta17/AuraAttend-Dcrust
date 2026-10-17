@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Subject Summary</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --purple: #4a1d7a;
+            --bg: #f6f5fa;
+            --card: #ffffff;
+            --border: #e6e3ee;
+            --text: #2b2b36;
+            --muted: #6b6878;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', "Roboto", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+        
+        /* Top Navigation Bar with Back Arrow */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 24px;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .back-btn {
+            background: transparent;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            padding: 8px;
+            margin-left: -8px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            transition: background 0.2s;
+        }
+        .back-btn:hover { background: #ece8f4; color: var(--purple); }
+        .top-nav h1 { margin: 0; font-size: 18px; font-weight: 700; }
+
+        /* Main Content */
+        .content {
+            padding: 24px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .subject-header {
+            margin-bottom: 24px;
+        }
+        .subject-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin: 0 0 8px 0;
+            color: var(--purple);
+        }
+        .subject-stats {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        /* Day-wise Records Cards */
+        .record-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .record-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card);
+            padding: 16px 20px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(74, 29, 122, 0.04);
+        }
+        .date-time {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .date-text {
+            font-size: 16px;
+            font-weight: 700;
+        }
+        .time-text {
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 500;
+        }
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Status Colors */
+        .status-badge.present { background: #dcfce7; color: #16a34a; }
+        .status-badge.absent { background: #fee2e2; color: #dc2626; }
+        .status-badge.leave { background: #fef9c3; color: #ca8a04; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--muted);
+            font-weight: 500;
+            background: var(--card);
+            border-radius: 14px;
+            border: 1px dashed #d1c9e8;
+        }
+
+        @media (max-width: 600px) {
+            .content { padding: 16px; }
+            .record-card { padding: 14px 16px; }
+            .date-text { font-size: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Topbar with Back Arrow fixed to 'Attendence.html' -->
+    <header class="top-nav">
+        <button class="back-btn" onclick="window.location.href='Attendence.html'" aria-label="Go back">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        </button>
+        <h1>Attendance Summary</h1>
+    </header>
+
+    <main class="content">
+        <div class="subject-header">
+            <h2 class="subject-title" id="subjectNameDisplay">Loading...</h2>
+            <div class="subject-stats" id="subjectStatsDisplay">Fetching records...</div>
+        </div>
+
+        <div class="record-list" id="recordList">
+            <!-- Dynamic Day Cards will be inserted here -->
+        </div>
+    </main>
+
+    <script type="module">
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetSubject = urlParams.get('subject');
+        
+        // Memory se NAYA data uthana
+        const rawData = localStorage.getItem('latestAttendanceData');
+        
+        if (!rawData || !targetSubject) {
+            document.getElementById('subjectNameDisplay').textContent = "Data not found";
+            document.getElementById('recordList').innerHTML = `<div class="empty-state">Please go back and refresh your attendance from the main page first.</div>`;
+        } else {
+            const attendanceData = JSON.parse(rawData);
+            
+            // Poore data array mein se apna target subject dhoondhna
+            const subjectData = attendanceData.find(item => item.subject === targetSubject);
+
+            if (subjectData) {
+                // Friendly name mapping
+                const subjectMapping = {
+                    "ESECE201D": "Digital System Design",
+                    "PCCSE201D": "Data Structures",
+                    "PCCSE203D": "OOPs using JAVA",
+                    "PCCSE205D": "Database Management",
+                    "PCCSE207D": "Computer Architecture",
+                    "COI ": "Constitution of India",
+                    "COI": "Constitution of India",
+                    "OOP LAB CSE 3": "OOP Lab",
+                    "DSA LAB G3": "DSA Lab",
+                    "PT LAB G3": "Community Internship",
+                    "DSD LAB G3": "DSD Lab",
+                    "DBMS lab G3": "DBMS Lab"
+                };
+                
+                const friendlyName = subjectMapping[subjectData.subject.trim()] || subjectData.subject;
+                
+                document.getElementById('subjectNameDisplay').textContent = friendlyName;
+                document.getElementById('subjectStatsDisplay').textContent = subjectData.summary;
+
+                const recordListContainer = document.getElementById('recordList');
+                recordListContainer.innerHTML = '';
+
+                // Records render karna
+                if (!subjectData.records || subjectData.records.length === 0) {
+                    recordListContainer.innerHTML = `<div class="empty-state">No day-wise records found for this subject yet.</div>`;
+                } else {
+                    subjectData.records.forEach(record => {
+                        let statusClass = 'present';
+                        if (record.status.toLowerCase().includes('absent')) statusClass = 'absent';
+                        else if (record.status.toLowerCase().includes('leave')) statusClass = 'leave';
+
+                        const card = document.createElement('div');
+                        card.className = 'record-card';
+                        card.innerHTML = `
+                            <div class="date-time">
+                                <span class="date-text">${record.date}</span>
+                                <span class="time-text">${record.time}</span>
+                            </div>
+                            <div class="status-badge ${statusClass}">${record.status}</div>
+                        `;
+                        recordListContainer.appendChild(card);
+                    });
+                }
+            } else {
+                document.getElementById('subjectNameDisplay').textContent = "Subject not found";
+            }
+        }
+    </script>
+</body>
+</html>
