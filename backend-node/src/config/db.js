@@ -1,5 +1,6 @@
 import mysql from 'mysql2';
 import dotenv from 'dotenv';
+
 dotenv.config();
 
 const pool = mysql.createPool({
@@ -11,7 +12,7 @@ const pool = mysql.createPool({
     ssl: { rejectUnauthorized: false }
 });
 
-// Table creation query with fresh drop
+// Table creation query with profile_pic column added
 const createTableQuery = `
   CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -26,20 +27,18 @@ const createTableQuery = `
     phone_no VARCHAR(15),
     gender VARCHAR(20),
     linkedin_url VARCHAR(255),
+    profile_pic TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
 `;
 
 const dbPool = pool.promise();
 
-// Server start hote hi purani table drop karke fresh table banayein aur live table view print karein
+// Server start hote hi table initialize karne ke liye
 async function initializeDatabase() {
     try {
-        
         await dbPool.query(createTableQuery);
         console.log('✨ Fresh users table created successfully!');
-
-        
     } catch (err) {
         console.error('Database initialization error:', err.message);
     }

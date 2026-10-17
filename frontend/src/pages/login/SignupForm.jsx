@@ -191,10 +191,10 @@ return (
                                 </div>
                             </div>
                             <div className="input-group">
-                                <label htmlFor="universityId">University Password / ID (INT)</label>
+                                <label htmlFor="universityId">University Password </label>
                                 <div className="input-field-wrapper">
                                     <i className="fa-solid fa-key"></i>
-                                    <input type="number" placeholder="Enter numeric university ID" value={universityId} onChange={(e) => setUniversityId(e.target.value)} required />
+                                    <input type="text" placeholder="Enter university password" value={universityId} onChange={(e) => setUniversityId(e.target.value)} required />
                                 </div>
                             </div>
                             <div className="input-group">

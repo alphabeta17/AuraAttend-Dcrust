@@ -4,6 +4,8 @@ import { sendOtpEmail } from '../services/email.service.js'; // Nodemailer servi
 import { OAuth2Client } from 'google-auth-library'; // Google token verify karne ke liye
 import db from '../config/db.js'; // MySQL database connection pool import kiya
 import * as cheerio from 'cheerio';
+import multer from 'multer';
+import cloudinary from '../config/cloudinary.js';
 
 
 const router = express.Router(); // Router instance banaya
@@ -411,6 +413,49 @@ router.post('/fetch-university-attendance', async (req, res) => {
     } catch (error) {
         console.error("Scraping Error:", error);
         res.status(500).json({ success: false, message: "Failed to sync with university servers." });
+    }
+});
+
+
+// Multer configuration for memory storage
+const upload = multer({ storage: multer.memoryStorage() });
+
+// ==========================================
+// UPLOAD PROFILE PICTURE ROUTE (Cloudinary)
+// ==========================================
+router.post('/upload-photo', upload.single('photo'), async (req, res) => {
+    const { email } = req.body;
+    
+    if (!email || !req.file) {
+        return res.status(400).json({ success: false, message: "Email and image file are required." });
+    }
+
+    try {
+        // Buffer ko Cloudinary par upload karne ka tareeqa
+        const uploadStream = () => {
+            return new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    { folder: "aura_attend_profiles" }, // Cloudinary folder name
+                    (error, result) => {
+                        if (result) resolve(result);
+                        else reject(error);
+                    }
+                );
+                stream.end(req.file.buffer);
+            });
+        };
+
+        const uploadResult = await uploadStream();
+        const imageUrl = uploadResult.secure_url; // Cloudinary secure URL
+
+        // Database mein sirf image ka URL save kar rahe hain
+        await db.query('UPDATE users SET profile_pic = ? WHERE email = ?', [imageUrl, email]);
+
+        res.status(200).json({ success: true, message: "Photo uploaded successfully!", photoUrl: imageUrl });
+
+    } catch (error) {
+        console.error("Cloudinary Upload Error:", error);
+        res.status(500).json({ success: false, message: "Failed to upload image to cloud." });
     }
 });
 // ==========================================

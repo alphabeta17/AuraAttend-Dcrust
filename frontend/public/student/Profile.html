@@ -728,6 +728,7 @@ form.addEventListener("submit", async (e) => {
 });
 
 $("uploadBtn").addEventListener("click", () => $("photoInput").click());
+
 $("photoInput").addEventListener("change", async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -737,34 +738,32 @@ $("photoInput").addEventListener("change", async (e) => {
         return;
     }
 
-    const reader = new FileReader();
-    reader.onload = async () => {
-        data.photo = reader.result;
-        renderAvatar();
+    // FormData ka use karke file backend ko bhej rahe hain
+    const formData = new FormData();
+    formData.append('email', data.email);
+    formData.append('photo', file);
 
-        // Sabhi data ke sath photo bhi bhej rahe hain taaki baaki info wipe na ho
-        try {
-            const response = await fetch('/api/auth/update-profile', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: data.email,
-                    
-                    photo: data.photo
-                })
-            });
-            const result = await response.json();
-            if (result.success) {
-                showToast("Profile picture saved successfully!");
-            } else {
-                showToast(result.message || "Failed to save photo.");
-            }
-        } catch (err) {
-            console.error("Error saving photo:", err);
-            showToast("Network error while saving photo.");
+    showToast("Uploading photo to cloud...");
+
+    try {
+        const response = await fetch('/api/auth/upload-photo', {
+            method: 'POST',
+            body: formData // Content-Type header khud set ho jata hai FormData ke sath
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            data.photo = result.photoUrl; // Cloudinary ka URL data mein set kiya
+            renderAvatar();
+            saveDataLocally();
+            showToast("Profile picture updated successfully!");
+        } else {
+            showToast(result.message || "Failed to save photo.");
         }
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+        console.error("Error uploading photo:", err);
+        showToast("Network error while uploading photo.");
+    }
 });
 
 
