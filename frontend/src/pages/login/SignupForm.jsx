@@ -103,7 +103,7 @@ export default function SignupForm({ onSwitchToLogin, onSignupSuccess }) {
           otp, 
           password, 
           roll_no: rollNo, 
-          university_id: parseInt(universityId) || null,
+          university_id: universityId || null,
           fullName: fullName, 
           gender: gender, 
           phone_no: phone, 

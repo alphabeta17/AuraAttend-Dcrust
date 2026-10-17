@@ -87,7 +87,7 @@ router.post('/verify-otp', async (req, res) => {
             [email,
               hashedPassword, 
               roll_no || null,
-              portalPassword ? parseInt(portalPassword) : null, 
+              portalPassword ? portalPassword.toString() : null,
               fullName || null, 
               gender || null, 
               phone_no || null, 

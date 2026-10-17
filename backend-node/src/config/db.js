@@ -1,3 +1,4 @@
+
 import mysql from 'mysql2';
 import dotenv from 'dotenv';
 
@@ -13,9 +14,9 @@ const pool = mysql.createPool({
 });
 
 
-// Table creation query with profile_pic column added
+// 2. Nayi table creation query (university_portal_password ko VARCHAR(255) kar diya gaya hai)
 const createTableQuery = `
-  CREATE TABLE IF NOT EXISTS users (
+  CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     full_name VARCHAR(255),
     roll_no VARCHAR(50) UNIQUE,
@@ -35,16 +36,18 @@ const createTableQuery = `
 
 const dbPool = pool.promise();
 
-// Server start hote hi table initialize karne ke liye
+// Server start hote hi purani table drop karke fresh table initialize karne ke liye
 async function initializeDatabase() {
     try {
+        
+
+        // Phir fresh table create karein
         await dbPool.query(createTableQuery);
-        console.log('✨ Fresh users table created successfully!');
+        console.log('✨ Fresh users table created successfully with VARCHAR password!');
         
     } catch (err) {
         console.error('Database initialization error:', err.message);
     }
-
 }
 
 initializeDatabase();
